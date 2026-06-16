@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WalletRouteImport } from './routes/wallet'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ActivityRouteImport } from './routes/activity'
 import { Route as IndexRouteImport } from './routes/index'
@@ -18,6 +19,11 @@ import { Route as RideIdRouteImport } from './routes/ride.$id'
 const WalletRoute = WalletRouteImport.update({
   id: '/wallet',
   path: '/wallet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/auth': typeof AuthRoute
+  '/profile': typeof ProfileRoute
   '/wallet': typeof WalletRoute
   '/ride/$id': typeof RideIdRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/auth': typeof AuthRoute
+  '/profile': typeof ProfileRoute
   '/wallet': typeof WalletRoute
   '/ride/$id': typeof RideIdRoute
 }
@@ -60,21 +68,30 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/auth': typeof AuthRoute
+  '/profile': typeof ProfileRoute
   '/wallet': typeof WalletRoute
   '/ride/$id': typeof RideIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/activity' | '/auth' | '/wallet' | '/ride/$id'
+  fullPaths: '/' | '/activity' | '/auth' | '/profile' | '/wallet' | '/ride/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/activity' | '/auth' | '/wallet' | '/ride/$id'
-  id: '__root__' | '/' | '/activity' | '/auth' | '/wallet' | '/ride/$id'
+  to: '/' | '/activity' | '/auth' | '/profile' | '/wallet' | '/ride/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/activity'
+    | '/auth'
+    | '/profile'
+    | '/wallet'
+    | '/ride/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActivityRoute: typeof ActivityRoute
   AuthRoute: typeof AuthRoute
+  ProfileRoute: typeof ProfileRoute
   WalletRoute: typeof WalletRoute
   RideIdRoute: typeof RideIdRoute
 }
@@ -86,6 +103,13 @@ declare module '@tanstack/react-router' {
       path: '/wallet'
       fullPath: '/wallet'
       preLoaderRoute: typeof WalletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -123,6 +147,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActivityRoute: ActivityRoute,
   AuthRoute: AuthRoute,
+  ProfileRoute: ProfileRoute,
   WalletRoute: WalletRoute,
   RideIdRoute: RideIdRoute,
 }

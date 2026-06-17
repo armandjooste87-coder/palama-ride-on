@@ -78,8 +78,9 @@ export function PassengerHome() {
       {/* Header */}
       <header className="absolute inset-x-0 top-0 z-20 flex items-center justify-between px-4 pt-4 safe-top">
         <div>
+          <h1 className="sr-only">Palama — Ride sharing in Lesotho</h1>
           <p className="text-xs text-muted-foreground">Hello,</p>
-          <h1 className="text-lg font-semibold">{profile?.full_name?.split(" ")[0] || "there"} 👋</h1>
+          <h2 className="text-lg font-semibold">{profile?.full_name?.split(" ")[0] || "there"} 👋</h2>
         </div>
         <Button
           variant="destructive"
@@ -207,7 +208,7 @@ export function PassengerHome() {
         </div>
 
         <div className="mt-6 flex items-center justify-between">
-          <h3 className="text-sm font-semibold">Your trust score</h3>
+          <h2 className="text-sm font-semibold">Your trust score</h2>
           <span className="flex items-center gap-1 text-sm font-semibold">
             <Star className="size-4 fill-primary text-primary" /> {profile?.rating?.toFixed(2) ?? "5.00"}
           </span>

@@ -1,0 +1,8 @@
+# Palama
+
+> Palama is a ride-hailing app built for Lesotho — request rides, drive to earn, and pay with a Maloti wallet.
+
+## Pages
+
+- [Home](/): Request a ride or go online to drive.
+- [Sign in](/auth): Create an account or sign in by phone.

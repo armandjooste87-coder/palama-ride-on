@@ -86,6 +86,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Palama — Rides" },
       { property: "og:description", content: "Palama: book rides in seconds. Safe, fast, mobile-first." },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Palama" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "Palama — Rides" },
       { name: "twitter:description", content: "Palama: book rides in seconds. Safe, fast, mobile-first." },
@@ -96,6 +97,30 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "stylesheet", href: appCss },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/icon-192.png" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              name: "Palama",
+              url: "https://palama-co-ls.lovable.app",
+              logo: "https://palama-co-ls.lovable.app/icon-512.png",
+            },
+            {
+              "@type": "SoftwareApplication",
+              name: "Palama",
+              applicationCategory: "TravelApplication",
+              operatingSystem: "Web, iOS, Android",
+              url: "https://palama-co-ls.lovable.app",
+              offers: { "@type": "Offer", price: "0", priceCurrency: "LSL" },
+            },
+          ],
+        }),
+      },
     ],
   }),
   shellComponent: RootShell,

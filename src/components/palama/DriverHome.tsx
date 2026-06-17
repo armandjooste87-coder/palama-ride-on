@@ -108,8 +108,9 @@ export function DriverHome() {
     <>
       <header className="absolute inset-x-0 top-0 z-20 flex items-center justify-between px-4 pt-4 safe-top">
         <div>
+          <h1 className="sr-only">Palama — Drive and earn in Lesotho</h1>
           <p className="text-xs text-muted-foreground">Driver</p>
-          <h1 className="text-lg font-semibold">{profile?.full_name?.split(" ")[0] || "Driver"}</h1>
+          <h2 className="text-lg font-semibold">{profile?.full_name?.split(" ")[0] || "Driver"}</h2>
         </div>
         <div className="flex items-center gap-2 rounded-full bg-card px-3 py-1.5">
           <span className={`size-2 rounded-full ${online ? "bg-success animate-pulse" : "bg-muted-foreground"}`} />

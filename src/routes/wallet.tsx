@@ -14,7 +14,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/wallet")({
-  head: () => ({ meta: [{ title: "Wallet — Palama" }] }),
+  head: () => ({
+    meta: [
+      { title: "Wallet — Palama" },
+      { name: "description", content: "Top up your Palama wallet, withdraw to M-Pesa, and see every Maloti transaction tied to your rides." },
+      { property: "og:title", content: "Wallet — Palama" },
+      { property: "og:description", content: "Manage your Maloti balance, top-ups, and withdrawals in the Palama wallet." },
+      { property: "og:url", content: "https://palama-co-ls.lovable.app/wallet" },
+      { name: "robots", content: "noindex" },
+    ],
+    links: [{ rel: "canonical", href: "https://palama-co-ls.lovable.app/wallet" }],
+  }),
   component: WalletPage,
 });
 

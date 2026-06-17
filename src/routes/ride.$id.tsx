@@ -14,7 +14,15 @@ import type { Database } from "@/integrations/supabase/types";
 type RideRow = Database["public"]["Tables"] extends Record<string, unknown> ? any : any;
 
 export const Route = createFileRoute("/ride/$id")({
-  head: () => ({ meta: [{ title: "Trip — Palama" }] }),
+  head: () => ({
+    meta: [
+      { title: "Trip — Palama" },
+      { name: "description", content: "Track your live Palama trip: driver location, route progress, fare, and safety tools — all on one screen." },
+      { property: "og:title", content: "Live trip — Palama" },
+      { property: "og:description", content: "Follow your driver in real time and manage your Palama trip." },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: RidePage,
 });
 
@@ -137,8 +145,9 @@ function RidePage() {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col bg-background">
+      <h1 className="sr-only">Palama trip — {copy.title}</h1>
       <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-between px-4 pt-4 safe-top">
-        <button onClick={() => nav({ to: "/" })} className="grid size-10 place-items-center rounded-full bg-card">
+        <button aria-label="Close trip and go home" onClick={() => nav({ to: "/" })} className="grid size-10 place-items-center rounded-full bg-card">
           <X className="size-5" />
         </button>
         <Button variant="destructive" size="sm" className="gap-1 rounded-full" onClick={() => toast("Safety alerted (demo)")}>
@@ -181,8 +190,8 @@ function RidePage() {
               </p>
             </div>
             <div className="flex gap-2">
-              <Button size="icon" variant="outline" onClick={() => toast("Calling driver…")}><Phone className="size-4" /></Button>
-              <Button size="icon" variant="outline" onClick={() => toast("Chat opens here")}><MessageSquare className="size-4" /></Button>
+              <Button aria-label="Call driver" size="icon" variant="outline" onClick={() => toast("Calling driver…")}><Phone className="size-4" /></Button>
+              <Button aria-label="Message driver" size="icon" variant="outline" onClick={() => toast("Chat opens here")}><MessageSquare className="size-4" /></Button>
             </div>
           </Card>
         )}
@@ -219,7 +228,7 @@ function RidePage() {
           </DialogHeader>
           <div className="flex justify-center gap-1 py-2">
             {[1, 2, 3, 4, 5].map((n) => (
-              <button key={n} onClick={() => setStars(n)}>
+              <button key={n} aria-label={`Rate ${n} ${n === 1 ? "star" : "stars"}`} onClick={() => setStars(n)}>
                 <Star className={`size-9 transition ${n <= stars ? "fill-primary text-primary" : "text-muted-foreground"}`} />
               </button>
             ))}

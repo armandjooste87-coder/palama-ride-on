@@ -8,7 +8,16 @@ import { MapPin } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 export const Route = createFileRoute("/activity")({
-  head: () => ({ meta: [{ title: "Activity — Palama" }] }),
+  head: () => ({
+    meta: [
+      { title: "Activity — Palama" },
+      { name: "description", content: "Review your recent Palama trips, fares paid, and driver earnings — all in one place." },
+      { property: "og:title", content: "Your trips — Palama" },
+      { property: "og:description", content: "See every Palama ride you've taken or driven, with status and fare details." },
+      { property: "og:url", content: "https://palama-co-ls.lovable.app/activity" },
+    ],
+    links: [{ rel: "canonical", href: "https://palama-co-ls.lovable.app/activity" }],
+  }),
   component: ActivityPage,
 });
 

@@ -72,12 +72,8 @@ function RidePage() {
     const t = setTimeout(async () => {
       await supabase.from("rides").update({ status: n }).eq("id", ride.id);
       if (n === "completed") {
-        // pay
-        await supabase.from("wallet_transactions").insert({
-          user_id: ride.passenger_id, ride_id: ride.id,
-          amount_lsm: -Number(ride.fare_lsm), type: "ride_payment",
-          description: `Trip to ${ride.dropoff_address}`,
-        });
+        // pay (passenger + driver) via SECURITY DEFINER fn
+        await supabase.rpc("complete_ride_payment", { _ride_id: ride.id });
       }
     }, delay);
     return () => clearTimeout(t);
@@ -116,11 +112,7 @@ function RidePage() {
   async function driverAdvance(to: Status) {
     await supabase.from("rides").update({ status: to }).eq("id", ride.id);
     if (to === "completed") {
-      await supabase.from("wallet_transactions").insert({
-        user_id: ride.driver_id, ride_id: ride.id,
-        amount_lsm: Number(ride.fare_lsm) * 0.85, type: "ride_earning",
-        description: `Trip — ${ride.pickup_address} → ${ride.dropoff_address}`,
-      });
+      await supabase.rpc("complete_ride_payment", { _ride_id: ride.id });
       refreshProfile();
     }
   }

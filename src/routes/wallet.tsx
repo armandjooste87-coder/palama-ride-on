@@ -40,11 +40,9 @@ function WalletPage() {
     if (!user || !n || n <= 0) return;
     const signed = open === "deposit" ? n : -n;
     if (open === "withdraw" && balance < n) { toast.error("Insufficient balance"); return; }
-    const { error } = await supabase.from("wallet_transactions").insert({
-      user_id: user.id, amount_lsm: signed,
-      type: open === "deposit" ? "deposit" : "withdrawal",
-      description: open === "deposit" ? "M-Pesa top-up (demo)" : "M-Pesa withdrawal (demo)",
-    });
+    const { error } = open === "deposit"
+      ? await supabase.rpc("wallet_topup", { _amount: n })
+      : await supabase.rpc("wallet_withdraw", { _amount: n });
     if (error) return toast.error(error.message);
     toast.success(open === "deposit" ? "Deposited" : "Withdrawal queued");
     setAmount(""); setOpen(null);

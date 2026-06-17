@@ -245,12 +245,49 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      complete_ride_payment: { Args: { _ride_id: string }; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      wallet_topup: {
+        Args: { _amount: number }
+        Returns: {
+          amount_lsm: number
+          created_at: string
+          description: string | null
+          id: string
+          ride_id: string | null
+          type: Database["public"]["Enums"]["txn_type"]
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "wallet_transactions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      wallet_withdraw: {
+        Args: { _amount: number }
+        Returns: {
+          amount_lsm: number
+          created_at: string
+          description: string | null
+          id: string
+          ride_id: string | null
+          type: Database["public"]["Enums"]["txn_type"]
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "wallet_transactions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
     }
     Enums: {

@@ -253,6 +253,87 @@ export type Database = {
         }
         Returns: boolean
       }
+      ride_accept: {
+        Args: { _ride_id: string }
+        Returns: {
+          created_at: string
+          distance_km: number
+          driver_id: string | null
+          dropoff_address: string
+          dropoff_lat: number
+          dropoff_lng: number
+          duration_min: number
+          fare_lsm: number
+          id: string
+          passenger_id: string
+          pickup_address: string
+          pickup_lat: number
+          pickup_lng: number
+          ride_type: Database["public"]["Enums"]["ride_type"]
+          status: Database["public"]["Enums"]["ride_status"]
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "rides"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      ride_advance: {
+        Args: { _ride_id: string; _to: string }
+        Returns: {
+          created_at: string
+          distance_km: number
+          driver_id: string | null
+          dropoff_address: string
+          dropoff_lat: number
+          dropoff_lng: number
+          duration_min: number
+          fare_lsm: number
+          id: string
+          passenger_id: string
+          pickup_address: string
+          pickup_lat: number
+          pickup_lng: number
+          ride_type: Database["public"]["Enums"]["ride_type"]
+          status: Database["public"]["Enums"]["ride_status"]
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "rides"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      ride_cancel: {
+        Args: { _ride_id: string }
+        Returns: {
+          created_at: string
+          distance_km: number
+          driver_id: string | null
+          dropoff_address: string
+          dropoff_lat: number
+          dropoff_lng: number
+          duration_min: number
+          fare_lsm: number
+          id: string
+          passenger_id: string
+          pickup_address: string
+          pickup_lat: number
+          pickup_lng: number
+          ride_type: Database["public"]["Enums"]["ride_type"]
+          status: Database["public"]["Enums"]["ride_status"]
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "rides"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       wallet_topup: {
         Args: { _amount: number }
         Returns: {

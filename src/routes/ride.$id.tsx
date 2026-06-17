@@ -70,14 +70,16 @@ function RidePage() {
     if (!n) return;
     const delay = ride.status === "in_progress" ? 6000 : 4000;
     const t = setTimeout(async () => {
-      await supabase.from("rides").update({ status: n }).eq("id", ride.id);
-      if (n === "completed") {
-        // pay (passenger + driver) via SECURITY DEFINER fn
-        await supabase.rpc("complete_ride_payment", { _ride_id: ride.id });
+      // Simulated driver-side progression for demo. In production the driver app
+      // would call ride_advance directly. Here the passenger view advances on its
+      // own only when the driver_id matches (self-fulfilled demo ride); otherwise
+      // it just waits for the real driver.
+      if (ride.driver_id === user?.id) {
+        await supabase.rpc("ride_advance", { _ride_id: ride.id, _to: n });
       }
     }, delay);
     return () => clearTimeout(t);
-  }, [ride, isPassenger, isDriver]);
+  }, [ride, isPassenger, isDriver, user?.id]);
 
   // Animate route progress while in_progress.
   useEffect(() => {
@@ -110,15 +112,14 @@ function RidePage() {
   const copy = STATUS_COPY[status];
 
   async function driverAdvance(to: Status) {
-    await supabase.from("rides").update({ status: to }).eq("id", ride.id);
-    if (to === "completed") {
-      await supabase.rpc("complete_ride_payment", { _ride_id: ride.id });
-      refreshProfile();
-    }
+    const { error } = await supabase.rpc("ride_advance", { _ride_id: ride.id, _to: to });
+    if (error) { toast.error(error.message); return; }
+    if (to === "completed") refreshProfile();
   }
 
   async function cancelRide() {
-    await supabase.from("rides").update({ status: "cancelled" }).eq("id", ride.id);
+    const { error } = await supabase.rpc("ride_cancel", { _ride_id: ride.id });
+    if (error) { toast.error(error.message); return; }
     toast("Ride cancelled");
     nav({ to: "/", replace: true });
   }

@@ -7,7 +7,17 @@ import { LogOut, Star, Phone, Car, Shield, ChevronRight, FileText } from "lucide
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/profile")({
-  head: () => ({ meta: [{ title: "Profile — Palama" }] }),
+  head: () => ({
+    meta: [
+      { title: "Profile — Palama" },
+      { name: "description", content: "Manage your Palama account: phone number, vehicle details, saved places, and account verification." },
+      { property: "og:title", content: "Your profile — Palama" },
+      { property: "og:description", content: "Update your Palama account, vehicle, and saved places." },
+      { property: "og:url", content: "https://palama-co-ls.lovable.app/profile" },
+      { name: "robots", content: "noindex" },
+    ],
+    links: [{ rel: "canonical", href: "https://palama-co-ls.lovable.app/profile" }],
+  }),
   component: ProfilePage,
 });
 

@@ -74,7 +74,8 @@ export function DriverHome() {
 
     let rideId = open?.id as string | undefined;
     if (rideId) {
-      await supabase.from("rides").update({ driver_id: user.id, status: "matched" }).eq("id", rideId);
+      const { error: accErr } = await supabase.rpc("ride_accept", { _ride_id: rideId });
+      if (accErr) { toast.error(accErr.message); return; }
     } else {
       // Demo: create a synthetic passenger-less ride owned by the driver to walk through the flow.
       const { data, error } = await supabase

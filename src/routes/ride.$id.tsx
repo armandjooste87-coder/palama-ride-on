@@ -14,7 +14,15 @@ import type { Database } from "@/integrations/supabase/types";
 type RideRow = Database["public"]["Tables"] extends Record<string, unknown> ? any : any;
 
 export const Route = createFileRoute("/ride/$id")({
-  head: () => ({ meta: [{ title: "Trip — Palama" }] }),
+  head: () => ({
+    meta: [
+      { title: "Trip — Palama" },
+      { name: "description", content: "Track your live Palama trip: driver location, route progress, fare, and safety tools — all on one screen." },
+      { property: "og:title", content: "Live trip — Palama" },
+      { property: "og:description", content: "Follow your driver in real time and manage your Palama trip." },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: RidePage,
 });
 

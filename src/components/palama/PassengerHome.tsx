@@ -49,24 +49,15 @@ export function PassengerHome() {
   async function requestRide() {
     if (!destination || !user || !quote) return;
     setRequesting(true);
-    const { data, error } = await supabase
-      .from("rides")
-      .insert({
-        passenger_id: user.id,
-        pickup_address: pickup.label,
-        pickup_lat: pickup.lat,
-        pickup_lng: pickup.lng,
-        dropoff_address: destination.label,
-        dropoff_lat: destination.lat,
-        dropoff_lng: destination.lng,
-        ride_type: type,
-        fare_lsm: quote.fare,
-        distance_km: quote.km,
-        duration_min: quote.minutes,
-        status: "requested",
-      })
-      .select("id")
-      .single();
+    const { data, error } = await supabase.rpc("ride_request", {
+      _pickup_address: pickup.label,
+      _pickup_lat: pickup.lat,
+      _pickup_lng: pickup.lng,
+      _dropoff_address: destination.label,
+      _dropoff_lat: destination.lat,
+      _dropoff_lng: destination.lng,
+      _ride_type: type,
+    });
     setRequesting(false);
     if (error || !data) return toast.error(error?.message ?? "Could not request ride");
     setSheetOpen(false);

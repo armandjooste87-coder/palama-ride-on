@@ -61,7 +61,6 @@ export function DriverHome() {
 
   async function acceptRide() {
     if (!incoming || !user || !quote) return;
-    // Find a waiting passenger ride or create a synthetic one (mock self-fulfilled match for demo).
     const { data: open } = await supabase
       .from("rides")
       .select("id")
@@ -72,36 +71,12 @@ export function DriverHome() {
       .limit(1)
       .maybeSingle();
 
-    let rideId = open?.id as string | undefined;
-    if (rideId) {
-      const { error: accErr } = await supabase.rpc("ride_accept", { _ride_id: rideId });
-      if (accErr) { toast.error(accErr.message); return; }
-    } else {
-      // Demo: create a synthetic passenger-less ride owned by the driver to walk through the flow.
-      const { data, error } = await supabase
-        .from("rides")
-        .insert({
-          passenger_id: user.id,
-          driver_id: user.id,
-          pickup_address: incoming.pickup.label,
-          pickup_lat: incoming.pickup.lat,
-          pickup_lng: incoming.pickup.lng,
-          dropoff_address: incoming.dropoff.label,
-          dropoff_lat: incoming.dropoff.lat,
-          dropoff_lng: incoming.dropoff.lng,
-          ride_type: incoming.type,
-          fare_lsm: quote.fare,
-          distance_km: quote.km,
-          duration_min: quote.minutes,
-          status: "matched",
-        })
-        .select("id")
-        .single();
-      if (error || !data) { toast.error("Could not accept ride"); return; }
-      rideId = data.id;
-    }
+    const rideId = open?.id as string | undefined;
+    if (!rideId) { toast("No open ride requests right now"); setIncoming(null); return; }
+    const { error: accErr } = await supabase.rpc("ride_accept", { _ride_id: rideId });
+    if (accErr) { toast.error(accErr.message); return; }
     setIncoming(null);
-    if (rideId) nav({ to: "/ride/$id", params: { id: rideId } });
+    nav({ to: "/ride/$id", params: { id: rideId } });
   }
 
   return (

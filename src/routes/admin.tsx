@@ -249,7 +249,7 @@ function DocReviewCard({ doc, onChanged }: { doc: DocReview; onChanged: () => vo
   async function decide(status: "approved" | "rejected") {
     setBusy(true);
     const { error } = await supabase.rpc("admin_review_document", {
-      _doc_id: doc.id, _status: status, _note: note || null,
+      _doc_id: doc.id, _status: status, _note: note || "",
     });
     setBusy(false);
     if (error) { toast.error(error.message); return; }

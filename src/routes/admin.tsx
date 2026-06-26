@@ -262,7 +262,7 @@ function DocReviewCard({ doc, onChanged }: { doc: DocReview; onChanged: () => vo
       <p className="text-sm font-semibold">{doc.doc_type.replace(/_/g, " ")}</p>
       <p className="mt-0.5 text-xs text-muted-foreground">Driver: {doc.driver_id.slice(0, 8)}…</p>
       {previewUrl ? (
-        <a href={previewUrl} target="_blank" rel="noreferrer" className="mt-3 block overflow-hidden rounded-lg bg-surface-2">
+      <a href={previewUrl ?? "#"} target="_blank" rel="noreferrer" className="mt-3 block overflow-hidden rounded-lg bg-surface-2">
           {/\.(png|jpe?g|webp|gif)$/i.test(doc.storage_path)
             ? <img src={previewUrl} alt="" className="h-40 w-full object-cover" />
             : <div className="p-6 text-center text-sm">Open file ↗</div>}

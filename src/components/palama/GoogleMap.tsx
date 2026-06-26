@@ -1,3 +1,4 @@
+/// <reference types="google.maps" />
 import { useEffect, useRef, useState } from "react";
 import { setOptions, importLibrary } from "@googlemaps/js-api-loader";
 import { GOOGLE_MAPS_BROWSER_KEY, GOOGLE_MAPS_TRACKING_ID } from "@/lib/maps.config";

@@ -1,10 +1,12 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/palama/AppShell";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { LogOut, Star, Phone, Car, Shield, ChevronRight, FileText } from "lucide-react";
+import { LogOut, Star, Phone, Car, Shield, ChevronRight, Bell, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { DocumentsCard } from "@/components/palama/DocumentsCard";
+import { usePushSubscription } from "@/hooks/usePushSubscription";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -22,12 +24,21 @@ export const Route = createFileRoute("/profile")({
 });
 
 function ProfilePage() {
-  const { profile, role, signOut } = useAuth();
+  const { profile, role, isAdmin, signOut, user } = useAuth();
   const nav = useNavigate();
+  const enablePush = usePushSubscription(user?.id);
 
   async function handleSignOut() {
     await signOut();
     nav({ to: "/auth", replace: true });
+  }
+
+  async function handleEnablePush() {
+    const res = await enablePush();
+    if (res.ok) toast.success("Push notifications enabled");
+    else if (res.reason === "denied") toast.error("Permission denied in browser");
+    else if (res.reason === "unsupported") toast.error("This browser doesn't support push");
+    else toast.error("Could not enable notifications");
   }
 
   return (
@@ -52,15 +63,30 @@ function ProfilePage() {
         <Card className="divide-y divide-border p-0">
           <Row icon={<Phone className="size-4" />} label="Phone" value={profile?.phone ?? "—"} />
           {role === "driver" && (
-            <>
-              <Row icon={<Car className="size-4" />} label="Vehicle" value={profile?.vehicle_label ?? "Not set"} />
-              <Row icon={<FileText className="size-4" />} label="Documents" value="Pending review" />
-            </>
+            <Row icon={<Car className="size-4" />} label="Vehicle" value={profile?.vehicle_label ?? "Not set"} />
           )}
           <Row icon={<Shield className="size-4" />} label="Account" value="Verified" />
         </Card>
 
+        {role === "driver" && (
+          <div className="mt-4">
+            <DocumentsCard />
+          </div>
+        )}
+
         <Card className="mt-4 divide-y divide-border p-0">
+          <button className="flex w-full items-center gap-3 p-4 text-left" onClick={handleEnablePush}>
+            <Bell className="size-4 text-muted-foreground" />
+            <span className="flex-1 text-sm font-medium">Enable notifications</span>
+            <ChevronRight className="size-4 text-muted-foreground" />
+          </button>
+          {isAdmin && (
+            <Link to="/admin" className="flex w-full items-center gap-3 p-4 text-left">
+              <ShieldCheck className="size-4 text-primary" />
+              <span className="flex-1 text-sm font-medium">Admin dashboard</span>
+              <ChevronRight className="size-4 text-muted-foreground" />
+            </Link>
+          )}
           <button className="flex w-full items-center gap-3 p-4 text-left" onClick={() => toast("Saved places coming soon")}>
             <span className="flex-1 text-sm font-medium">Saved places</span>
             <ChevronRight className="size-4 text-muted-foreground" />

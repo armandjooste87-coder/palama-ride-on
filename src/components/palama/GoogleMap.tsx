@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Loader } from "@googlemaps/js-api-loader";
+import { setOptions, importLibrary } from "@googlemaps/js-api-loader";
 import { GOOGLE_MAPS_BROWSER_KEY, GOOGLE_MAPS_TRACKING_ID } from "@/lib/maps.config";
 import { DEFAULT_LOCATION } from "@/lib/palama";
 import { MockMap } from "./MockMap";
@@ -13,16 +13,16 @@ interface Props {
   routeProgress?: number;
 }
 
-let loaderPromise: Promise<typeof google> | null = null;
-function loadGoogle(): Promise<typeof google> {
+let loaderPromise: Promise<google.maps.MapsLibrary> | null = null;
+function loadGoogleMaps(): Promise<google.maps.MapsLibrary> {
   if (!loaderPromise) {
-    const loader = new Loader({
-      apiKey: GOOGLE_MAPS_BROWSER_KEY ?? "",
-      version: "weekly",
+    setOptions({
+      key: GOOGLE_MAPS_BROWSER_KEY ?? "",
+      v: "weekly",
       libraries: ["places"],
       channel: GOOGLE_MAPS_TRACKING_ID,
     });
-    loaderPromise = loader.load();
+    loaderPromise = importLibrary("maps");
   }
   return loaderPromise;
 }
@@ -52,9 +52,9 @@ export function GoogleMap({
   useEffect(() => {
     if (!GOOGLE_MAPS_BROWSER_KEY) { setFailed(true); return; }
     let cancelled = false;
-    loadGoogle().then((g) => {
+    loadGoogleMaps().then((maps) => {
       if (cancelled || !ref.current) return;
-      mapRef.current = new g.maps.Map(ref.current, {
+      mapRef.current = new maps.Map(ref.current, {
         center,
         zoom: 14,
         disableDefaultUI: true,

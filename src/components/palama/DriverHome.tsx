@@ -3,12 +3,13 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Star, TrendingUp, MapPin, Navigation } from "lucide-react";
-import { MockMap } from "./MockMap";
+import { GoogleMap } from "./GoogleMap";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { DEFAULT_LOCATION, LSM, MOCK_PLACES, RIDE_TYPES, quoteFare, haversineKm, type RideTypeKey } from "@/lib/palama";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
+import { useDriverLocationStream } from "@/hooks/useDriverLocationStream";
 
 interface IncomingReq {
   pickup: (typeof MOCK_PLACES)[number];
@@ -22,6 +23,9 @@ export function DriverHome() {
   const [online, setOnline] = useState(profile?.is_driver_online ?? false);
   const [incoming, setIncoming] = useState<IncomingReq | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(15);
+
+  // Broadcast device location while online.
+  useDriverLocationStream(user?.id, online);
 
   // Simulate incoming requests when online.
   useEffect(() => {
@@ -95,7 +99,7 @@ export function DriverHome() {
       </header>
 
       <div className="relative h-[55vh] w-full">
-        <MockMap center={DEFAULT_LOCATION} showNearbyDrivers={false} />
+        <GoogleMap center={DEFAULT_LOCATION} showNearbyDrivers={false} />
         {!online && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-sm">
             <Card className="mx-6 max-w-xs p-6 text-center">

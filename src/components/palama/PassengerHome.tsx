@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { MockMap } from "./MockMap";
+import { GoogleMap } from "./GoogleMap";
 import { DEFAULT_LOCATION, MOCK_PLACES, RIDE_TYPES, type RideTypeKey, quoteFare, LSM, haversineKm } from "@/lib/palama";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -86,7 +86,7 @@ export function PassengerHome() {
 
       {/* Map */}
       <div className="relative h-[55vh] w-full">
-        <MockMap center={pickup} />
+        <GoogleMap center={pickup} pickup={pickup} dropoff={destination} />
       </div>
 
       {activeRideId && (

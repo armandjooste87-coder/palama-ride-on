@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
-export type AppRole = "passenger" | "driver";
+export type AppRole = "passenger" | "driver" | "admin";
 
 export interface Profile {
   id: string;
@@ -21,6 +21,7 @@ interface AuthCtx {
   session: Session | null;
   profile: Profile | null;
   role: AppRole | null;
+  isAdmin: boolean;
   loading: boolean;
   refreshProfile: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -33,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [role, setRole] = useState<AppRole | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const loadProfile = async (uid: string) => {
@@ -42,7 +44,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     ]);
     setProfile((p as Profile) ?? null);
     const roles = (r ?? []).map((x: { role: string }) => x.role);
+    setIsAdmin(roles.includes("admin"));
     if (roles.includes("driver")) setRole("driver");
+    else if (roles.includes("admin")) setRole("admin");
     else setRole("passenger");
   };
 
@@ -55,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setProfile(null);
         setRole(null);
+        setIsAdmin(false);
       }
     });
 
@@ -72,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value: AuthCtx = {
-    user, session, profile, role, loading,
+    user, session, profile, role, isAdmin, loading,
     refreshProfile: async () => { if (user) await loadProfile(user.id); },
     signOut: async () => { await supabase.auth.signOut(); },
   };

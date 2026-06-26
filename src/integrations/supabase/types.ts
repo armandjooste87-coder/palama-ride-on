@@ -14,9 +14,137 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          ride_id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          ride_id: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          ride_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      driver_documents: {
+        Row: {
+          admin_note: string | null
+          created_at: string
+          doc_type: string
+          driver_id: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          storage_path: string
+          updated_at: string
+        }
+        Insert: {
+          admin_note?: string | null
+          created_at?: string
+          doc_type: string
+          driver_id: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          storage_path: string
+          updated_at?: string
+        }
+        Update: {
+          admin_note?: string | null
+          created_at?: string
+          doc_type?: string
+          driver_id?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          storage_path?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      driver_locations: {
+        Row: {
+          driver_id: string
+          heading: number | null
+          lat: number
+          lng: number
+          updated_at: string
+        }
+        Insert: {
+          driver_id: string
+          heading?: number | null
+          lat: number
+          lng: number
+          updated_at?: string
+        }
+        Update: {
+          driver_id?: string
+          heading?: number | null
+          lat?: number
+          lng?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      platform_ledger: {
+        Row: {
+          amount_lsm: number
+          created_at: string
+          id: string
+          kind: string
+          ride_id: string
+        }
+        Insert: {
+          amount_lsm: number
+          created_at?: string
+          id?: string
+          kind?: string
+          ride_id: string
+        }
+        Update: {
+          amount_lsm?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          ride_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_ledger_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
+          commission_pct: number
           created_at: string
           full_name: string | null
           id: string
@@ -26,10 +154,12 @@ export type Database = {
           updated_at: string
           vehicle_label: string | null
           vehicle_plate: string | null
+          verification_level: string
           wallet_balance: number
         }
         Insert: {
           avatar_url?: string | null
+          commission_pct?: number
           created_at?: string
           full_name?: string | null
           id: string
@@ -39,10 +169,12 @@ export type Database = {
           updated_at?: string
           vehicle_label?: string | null
           vehicle_plate?: string | null
+          verification_level?: string
           wallet_balance?: number
         }
         Update: {
           avatar_url?: string | null
+          commission_pct?: number
           created_at?: string
           full_name?: string | null
           id?: string
@@ -52,7 +184,38 @@ export type Database = {
           updated_at?: string
           vehicle_label?: string | null
           vehicle_plate?: string | null
+          verification_level?: string
           wallet_balance?: number
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_agent?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -245,7 +408,55 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_list_drivers: {
+        Args: never
+        Returns: {
+          approved_docs: number
+          commission_pct: number
+          full_name: string
+          id: string
+          pending_docs: number
+          phone: string
+          rating: number
+          total_earnings: number
+          verification_level: string
+        }[]
+      }
+      admin_review_document: {
+        Args: { _doc_id: string; _note: string; _status: string }
+        Returns: undefined
+      }
+      admin_set_commission: {
+        Args: { _driver_id: string; _pct: number }
+        Returns: undefined
+      }
+      admin_set_verification: {
+        Args: { _driver_id: string; _level: string }
+        Returns: undefined
+      }
+      bootstrap_admin: { Args: never; Returns: undefined }
       complete_ride_payment: { Args: { _ride_id: string }; Returns: undefined }
+      driver_doc_upsert: {
+        Args: { _doc_type: string; _storage_path: string }
+        Returns: {
+          admin_note: string | null
+          created_at: string
+          doc_type: string
+          driver_id: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          storage_path: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "driver_documents"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       get_ride_counterpart_profile: {
         Args: { _ride_id: string }
         Returns: {
@@ -381,6 +592,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      ride_settle: { Args: { _ride_id: string }; Returns: undefined }
       wallet_topup: {
         Args: { _amount: number }
         Returns: {

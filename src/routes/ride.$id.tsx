@@ -4,10 +4,12 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Star, Phone, MessageSquare, ShieldAlert, X } from "lucide-react";
+import { Star, Phone, ShieldAlert, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { MockMap } from "@/components/palama/MockMap";
+import { GoogleMap } from "@/components/palama/GoogleMap";
+import { ChatSheet } from "@/components/palama/ChatSheet";
+import { useRideDriverLocation } from "@/hooks/useRideDriverLocation";
 import { LSM, RIDE_TYPES, type RideTypeKey } from "@/lib/palama";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -108,6 +110,10 @@ function RidePage() {
     return null;
   }, [ride, pickup, dropoff]);
 
+  // Live driver location via Realtime; falls back to the simulated approach.
+  const liveDriver = useRideDriverLocation(ride?.driver_id ?? null);
+  const effectiveDriver = liveDriver ?? driverPos;
+
   if (!ride) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -156,11 +162,11 @@ function RidePage() {
       </div>
 
       <div className="relative h-[55vh] w-full">
-        <MockMap
+        <GoogleMap
           center={pickup ?? undefined}
           pickup={pickup}
           dropoff={dropoff}
-          driver={driverPos}
+          driver={effectiveDriver}
           routeProgress={status === "in_progress" ? progress : undefined}
           showNearbyDrivers={status === "requested"}
         />
@@ -191,7 +197,7 @@ function RidePage() {
             </div>
             <div className="flex gap-2">
               <Button aria-label="Call driver" size="icon" variant="outline" onClick={() => toast("Calling driver…")}><Phone className="size-4" /></Button>
-              <Button aria-label="Message driver" size="icon" variant="outline" onClick={() => toast("Chat opens here")}><MessageSquare className="size-4" /></Button>
+              <ChatSheet rideId={ride.id} />
             </div>
           </Card>
         )}

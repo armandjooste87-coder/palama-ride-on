@@ -1,64 +1,52 @@
-# Phase 2 — Palama
+## Palama — Stabilization & Feature Plan
 
-Big scope, so I'm grouping it into shippable chunks. Each is independently demoable; I'll build them in this order and re-run security + a smoke test at the end.
+### 1. Fix errors / warnings
+- **Google Maps deprecation**: migrate `GoogleMap.tsx` from `google.maps.Marker` to `AdvancedMarkerElement` (load `marker` library, set `mapId`).
+- **Dialog a11y warning**: add `DialogDescription` (or `aria-describedby`) to dialogs missing one (rating dialog in `ride.$id.tsx`, any others found during scan).
+- Run `security--run_security_scan` and patch any new findings.
 
-## Decisions baked in (tell me to change any)
+### 2. Profile page link fixes
+- Audit `src/routes/profile.tsx`: ensure all `<Link>` targets use valid TanStack routes (Wallet, Activity, Admin if admin, Auth sign-out). Replace broken/missing routes with working ones, add missing routes if referenced (e.g. Saved Places, Help).
 
-- **Maps**: Google Maps JS via the existing `maps js key` connector (browser key). Geocoding/Directions go through the gateway server-side. Replaces `MockMap`.
-- **Realtime location + chat**: Supabase Realtime (Postgres changes + broadcast channels). The Cloudflare Worker runtime can't host long-lived WebSocket servers, and Supabase Realtime is the supported equivalent — same UX, no custom WS infra.
-- **Push notifications**: Web Push (VAPID) with a service worker. Phase 1 explicitly skipped a service worker; adding one now will enable installable PWA push on Android/desktop. iOS works only once the user installs to home screen (Apple limitation). I'll generate VAPID keys via `generate_secret`.
-- **Document upload**: private Supabase Storage bucket `driver-docs`, RLS so drivers only see their own, admins see all. Doc types: driver_license, vehicle_registration, insurance, profile_photo. Status: pending / approved / rejected with admin note.
-- **Wallet-to-wallet payment**: on ride completion, debit passenger wallet, credit driver wallet minus commission, credit platform ledger with the fee. Atomic in one SECURITY DEFINER function. Replaces the current "record two transactions" stub.
-- **Commission**: per-driver column `commission_pct` (numeric, 2.00–35.00, default 35.00). Admin dashboard lets admins set it. Verification level (`unverified` / `basic` / `verified` / `premium`) is stored but doesn't auto-set the percentage — admin decides. I'll seed a hint table so admins see suggested ranges.
-- **Admin dashboard**: new `/admin` route, gated by `has_role(auth.uid(), 'admin')`. Lists drivers, doc review queue, commission editor.
+### 3. Payment methods at ride completion
+- Add `payment_method` enum on `rides`: `wallet` (default), `cash`, `card_demo`.
+- New sheet "Choose payment" shown to passenger before completion / on request. RPC `ride_set_payment_method(_ride_id, _method)` restricted to passenger and pre-completion.
+- Extend `ride_settle` to skip wallet debit for `cash` (driver collects) but still record commission owed (driver wallet debited commission instead).
 
-## Database (one migration)
+### 4. Pick up a friend (ride for someone else)
+- Add columns `rider_name`, `rider_phone`, `is_for_friend` on `rides`.
+- UI: toggle "Ride for someone else" in `PassengerHome` destination sheet → inputs for friend's name + phone. Driver sheet in `ride.$id.tsx` shows friend's info instead of passenger name.
 
-- `profiles`: add `commission_pct numeric default 35.00 check (between 2 and 35)`, `verification_level text default 'unverified'`.
-- `driver_documents`: id, driver_id, doc_type, storage_path, status, admin_note, reviewed_by, reviewed_at, timestamps. RLS: driver self + admin.
-- `chat_messages`: id, ride_id, sender_id, body, created_at. RLS: only ride participants. Realtime publication enabled.
-- `driver_locations`: driver_id pk, lat, lng, heading, updated_at. RLS: driver writes own; passenger of an active ride with that driver can read. Realtime enabled.
-- `push_subscriptions`: user_id, endpoint, p256dh, auth, user_agent. RLS: own-row only.
-- `platform_ledger`: id, ride_id, amount_lsm, kind ('commission'), created_at. Admin-readable.
-- New `app_role` value `'admin'`. Grant admin to a chosen user via SQL helper.
-- Replace `complete_ride_payment` with `ride_settle(_ride_id)`:
-  - Locks the ride row, asserts status=completed and not already settled.
-  - Reads passenger balance (profile + sum of txns), errors if insufficient.
-  - Inserts: passenger `-fare` (`ride_payment`), driver `+fare*(1 - commission_pct/100)` (`ride_earning`), platform `+fare*commission_pct/100` into `platform_ledger`.
-- Storage bucket `driver-docs` (private) + policies.
+### 5. Pay for a friend
+- New RPC `wallet_transfer(_to_user, _amount, _note)`: SECURITY DEFINER, validates balance, inserts paired `transfer_out` / `transfer_in` rows.
+- UI: "Send to a friend" card in `wallet.tsx` — phone lookup → confirm → transfer. Receipt slip on success.
 
-## Server functions / routes
+### 6. Payment slip / receipt
+- New `<ReceiptSlip />` component (printable, share via Web Share API). 
+- Shown after ride completion (replacing/augmenting rating dialog flow) and after wallet transfer/top-up/withdraw. Includes: trip id, from/to, fare breakdown (base, commission %, driver share), payment method, timestamp (GMT+2), Palama branding.
+- Add `/receipt/$rideId` route for re-viewing past slips from Activity.
 
-- `src/lib/maps.functions.ts`: `geocode`, `routeBetween` via Google Maps gateway (server-side, using gateway secrets). Returns polyline + distance + duration.
-- `src/lib/payments.functions.ts`: `settleRide` (calls `ride_settle` RPC; also called automatically when driver completes).
-- `src/lib/admin.functions.ts`: `listDrivers`, `setCommission`, `setVerification`, `reviewDocument(approve|reject, note)`. All `requireSupabaseAuth` + admin check.
-- `src/lib/push.functions.ts`: `savePushSubscription`, `sendPushToUser(user_id, payload)` using `web-push` (VAPID).
-- `src/routes/api/public/push-test.ts`: webhook-style test endpoint (admin-only via header secret) for sanity-checking push.
+### 7. Logging
+- New `src/lib/logger.ts`: tiny wrapper with levels (`debug/info/warn/error`), tags route + user id, forwards to `reportLovableError` in prod for warn+error.
+- Add `log_events` table (user_id, level, event, meta jsonb) + RPC `log_event` for server-recorded critical events (ride state changes, wallet ops, payment method changes).
+- Wire logger into RPC call sites (`PassengerHome`, `ride.$id`, `wallet`, `DriverHome`, auth).
 
-## Frontend
+### 8. Env var checklist + Setup README
+- `README.md` at project root:
+  - Stack overview
+  - Required env vars table:
+    - Client: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID`, `VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY`, `VITE_VAPID_PUBLIC_KEY`
+    - Server: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `LOVABLE_API_KEY`
+  - Local dev steps (`bun install`, `bun dev`)
+  - Migration / admin bootstrap instructions
+  - PWA install + push-notification setup
+  - Deployment notes (Cloudflare Workers target)
+- `.env.example` mirroring the checklist.
 
-- `src/components/palama/GoogleMap.tsx`: replaces `MockMap`. Loads JS API with `loading=async&callback=initMap&channel=...`, uses `google.maps.Map` + `google.maps.Marker` (no `mapId`, no AdvancedMarkerElement). Renders pickup/dropoff, animates driver marker from Realtime updates, draws Directions polyline.
-- `src/components/palama/AddressAutocomplete.tsx`: Places API (New) `AutocompleteSuggestion.fetchAutocompleteSuggestions`. Replaces mock places list.
-- `src/components/palama/ChatSheet.tsx`: bottom sheet on ride screen, Supabase Realtime channel per ride.
-- `src/routes/profile.tsx`: driver-only "Documents" section with upload + status badges.
-- `src/routes/admin.tsx` (+ child tabs): driver list, commission slider (2–35%), verification dropdown, doc review queue, platform earnings.
-- Push: on first sign-in, prompt; register SW (`public/sw.js`); subscribe; store via `savePushSubscription`. Fire pushes on `ride matched`, `chat message`, `ride completed`.
+### Technical notes
+- All new DB work goes through one migration (tables, columns, RPCs, GRANTs, RLS).
+- All new RPCs `SECURITY DEFINER`, `EXECUTE` revoked from `anon`/`PUBLIC`, granted to `authenticated`.
+- Receipt route is `noindex` and uses `get_ride_counterpart_profile` for the counterpart name.
+- Logger never logs phone numbers, tokens, or wallet balances.
 
-## Out of scope this turn (will note in plan.md)
-
-- Real SMS OTP (still mock — separate Twilio decision).
-- M-Pesa top-up (still mock; wallet-to-wallet is real on-platform).
-- iOS Safari push without home-screen install (Apple limitation).
-- Background location tracking when app is backgrounded (browser limitation).
-
-## Verification at the end
-
-1. `bun run build` clean.
-2. Security scan; fix anything new.
-3. Playwright smoke: passenger requests → driver accepts → location stream visible → chat exchange → driver completes → wallet split correct (default 35%) → admin changes commission to 10% → next ride settles at 10%.
-
-## Three quick questions before I start
-
-1. **Custom domain for push?** Web Push works fine on `*.lovable.app`, but if you have a custom domain coming, subscriptions are bound to origin — switching domains later means users re-subscribe. OK to proceed on the preview domain?
-2. **Who's the first admin?** I'll add an SQL one-liner `INSERT INTO user_roles (user_id, role) VALUES ('<your-uid>', 'admin')`. Want me to also expose a "promote to admin" button visible only when zero admins exist, so you can self-promote from the UI on first run?
-3. **Document storage limit per driver** — cap at, say, 10 MB per file and 4 doc types max, or no limits for now?
+After implementation: rerun security scan and fix anything new.

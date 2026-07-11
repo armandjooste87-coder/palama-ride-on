@@ -4,11 +4,15 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { DialogDescription } from "@/components/ui/dialog";
 import { Star, Phone, ShieldAlert, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { GoogleMap } from "@/components/palama/GoogleMap";
 import { ChatSheet } from "@/components/palama/ChatSheet";
+import { PaymentMethodSheet, type PaymentMethod } from "@/components/palama/PaymentMethodSheet";
+import { ReceiptSlip } from "@/components/palama/ReceiptSlip";
+import { logger } from "@/lib/logger";
 import { useRideDriverLocation } from "@/hooks/useRideDriverLocation";
 import { LSM, RIDE_TYPES, type RideTypeKey } from "@/lib/palama";
 import type { Database } from "@/integrations/supabase/types";
@@ -127,7 +131,8 @@ function RidePage() {
 
   async function driverAdvance(to: Status) {
     const { error } = await supabase.rpc("ride_advance", { _ride_id: ride.id, _to: to });
-    if (error) { toast.error(error.message); return; }
+    if (error) { logger.warn("ride_advance_failed", { to, err: error.message }); toast.error(error.message); return; }
+    logger.info("ride_advanced", { rideId: ride.id, to });
     if (to === "completed") refreshProfile();
   }
 
@@ -189,7 +194,7 @@ function RidePage() {
           <Card className="mt-5 flex items-center gap-3 p-4">
             <div className="grid size-12 place-items-center rounded-full bg-primary text-2xl">🧑‍✈️</div>
             <div className="flex-1">
-              <p className="font-bold">Lerato M.</p>
+              <p className="font-bold">{ride.is_for_friend ? `${ride.rider_name ?? "Friend"} (rider)` : "Lerato M."}</p>
               <p className="text-xs text-muted-foreground">Toyota Corolla · A123-AB</p>
               <p className="mt-0.5 flex items-center gap-1 text-xs">
                 <Star className="size-3 fill-primary text-primary" /> 4.93
@@ -206,7 +211,41 @@ function RidePage() {
           <div className="flex gap-3"><span className="mt-1 size-2 rounded-full bg-foreground" /><span>{ride.pickup_address}</span></div>
           <div className="ml-1 h-3 w-px bg-border" />
           <div className="flex gap-3"><span className="mt-1 size-2 rounded-sm bg-primary" /><span>{ride.dropoff_address}</span></div>
+          {ride.is_for_friend && ride.rider_name && (
+            <p className="pt-2 text-xs text-muted-foreground">Trip for a friend · {ride.rider_name}{ride.rider_phone ? ` · ${ride.rider_phone}` : ""}</p>
+          )}
         </div>
+
+        {isPassenger && status !== "completed" && status !== "cancelled" && (
+          <div className="mt-4">
+            <PaymentMethodSheet
+              rideId={ride.id}
+              current={(ride.payment_method ?? "wallet") as PaymentMethod}
+              onChanged={(m) => setRide({ ...ride, payment_method: m })}
+            />
+          </div>
+        )}
+
+        {status === "completed" && (
+          <div className="mt-5">
+            <ReceiptSlip
+              receipt={{
+                title: `Trip to ${ride.dropoff_address}`,
+                reference: ride.id.slice(0, 8).toUpperCase(),
+                amount: Number(ride.fare_lsm),
+                method: (ride.payment_method ?? "wallet") as PaymentMethod,
+                lines: [
+                  { label: "From", value: ride.pickup_address },
+                  { label: "To", value: ride.dropoff_address },
+                  { label: "Distance", value: `${Number(ride.distance_km).toFixed(2)} km` },
+                  { label: "Duration", value: `${ride.duration_min} min` },
+                  ...(ride.is_for_friend ? [{ label: "Rider", value: ride.rider_name ?? "Friend" }] : []),
+                ],
+                note: ride.payment_method === "cash" ? "Cash collected by driver. Platform fee debited from driver's wallet." : undefined,
+              }}
+            />
+          </div>
+        )}
 
         {/* Driver-only actions */}
         {isDriver && status !== "completed" && status !== "cancelled" && (
@@ -231,6 +270,7 @@ function RidePage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Rate your {isPassenger ? "driver" : "passenger"}</DialogTitle>
+            <DialogDescription>Your rating helps other Palama users decide who to ride with.</DialogDescription>
           </DialogHeader>
           <div className="flex justify-center gap-1 py-2">
             {[1, 2, 3, 4, 5].map((n) => (

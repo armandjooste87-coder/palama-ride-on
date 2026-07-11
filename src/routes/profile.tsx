@@ -3,7 +3,7 @@ import { AppShell } from "@/components/palama/AppShell";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { LogOut, Star, Phone, Car, Shield, ChevronRight, Bell, ShieldCheck } from "lucide-react";
+import { LogOut, Star, Phone, Car, Shield, ChevronRight, Bell, ShieldCheck, Wallet, Activity } from "lucide-react";
 import { toast } from "sonner";
 import { DocumentsCard } from "@/components/palama/DocumentsCard";
 import { usePushSubscription } from "@/hooks/usePushSubscription";
@@ -80,6 +80,16 @@ function ProfilePage() {
             <span className="flex-1 text-sm font-medium">Enable notifications</span>
             <ChevronRight className="size-4 text-muted-foreground" />
           </button>
+          <Link to="/wallet" className="flex w-full items-center gap-3 p-4 text-left">
+            <Wallet className="size-4 text-muted-foreground" />
+            <span className="flex-1 text-sm font-medium">Wallet</span>
+            <ChevronRight className="size-4 text-muted-foreground" />
+          </Link>
+          <Link to="/activity" className="flex w-full items-center gap-3 p-4 text-left">
+            <Activity className="size-4 text-muted-foreground" />
+            <span className="flex-1 text-sm font-medium">Trip history</span>
+            <ChevronRight className="size-4 text-muted-foreground" />
+          </Link>
           {isAdmin && (
             <Link to="/admin" className="flex w-full items-center gap-3 p-4 text-left">
               <ShieldCheck className="size-4 text-primary" />
@@ -87,18 +97,10 @@ function ProfilePage() {
               <ChevronRight className="size-4 text-muted-foreground" />
             </Link>
           )}
-          <button className="flex w-full items-center gap-3 p-4 text-left" onClick={() => toast("Saved places coming soon")}>
-            <span className="flex-1 text-sm font-medium">Saved places</span>
-            <ChevronRight className="size-4 text-muted-foreground" />
-          </button>
-          <button className="flex w-full items-center gap-3 p-4 text-left" onClick={() => toast("Help & support")}>
+          <a href="mailto:support@palama.co.ls?subject=Palama%20support" className="flex w-full items-center gap-3 p-4 text-left">
             <span className="flex-1 text-sm font-medium">Help & support</span>
             <ChevronRight className="size-4 text-muted-foreground" />
-          </button>
-          <button className="flex w-full items-center gap-3 p-4 text-left" onClick={() => toast("Settings")}>
-            <span className="flex-1 text-sm font-medium">Settings</span>
-            <ChevronRight className="size-4 text-muted-foreground" />
-          </button>
+          </a>
         </Card>
 
         <Button variant="outline" className="mt-6 w-full" onClick={handleSignOut}>

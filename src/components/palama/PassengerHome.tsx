@@ -23,6 +23,9 @@ export function PassengerHome() {
   const [sosOpen, setSosOpen] = useState(false);
   const [requesting, setRequesting] = useState(false);
   const [activeRideId, setActiveRideId] = useState<string | null>(null);
+  const [forFriend, setForFriend] = useState(false);
+  const [friendName, setFriendName] = useState("");
+  const [friendPhone, setFriendPhone] = useState("");
 
   // Check for in-progress ride on mount.
   useEffect(() => {
@@ -57,11 +60,15 @@ export function PassengerHome() {
       _dropoff_lat: destination.lat,
       _dropoff_lng: destination.lng,
       _ride_type: type,
-    });
+      _is_for_friend: forFriend,
+      _rider_name: forFriend ? friendName : null,
+      _rider_phone: forFriend ? friendPhone : null,
+    } as never);
     setRequesting(false);
     if (error || !data) return toast.error(error?.message ?? "Could not request ride");
     setSheetOpen(false);
-    nav({ to: "/ride/$id", params: { id: data.id } });
+    const rideId = (data as { id: string }).id;
+    nav({ to: "/ride/$id", params: { id: rideId } });
   }
 
   return (
@@ -159,6 +166,23 @@ export function PassengerHome() {
 
               {destination && quote && (
                 <div className="mt-4 space-y-3">
+                  <div className="rounded-2xl bg-surface-2 p-3">
+                    <label className="flex items-center gap-3 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={forFriend}
+                        onChange={(e) => setForFriend(e.target.checked)}
+                        className="size-4 accent-primary"
+                      />
+                      <span className="flex-1 font-medium">Pick up a friend</span>
+                    </label>
+                    {forFriend && (
+                      <div className="mt-2 grid grid-cols-2 gap-2">
+                        <Input placeholder="Friend's name" value={friendName} onChange={(e) => setFriendName(e.target.value)} />
+                        <Input placeholder="Friend's phone" value={friendPhone} onChange={(e) => setFriendPhone(e.target.value)} />
+                      </div>
+                    )}
+                  </div>
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Choose a ride
                   </p>

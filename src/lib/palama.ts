@@ -24,11 +24,43 @@ export type RideTypeKey = "palama_x" | "palama_xl" | "premium";
 
 export const RIDE_TYPES: Record<
   RideTypeKey,
-  { label: string; tagline: string; base: number; perKm: number; perMin: number; seats: number; emoji: string }
+  {
+    label: string;
+    tagline: string;
+    base: number;
+    perKm: number;
+    perMin: number;
+    seats: number;
+    emoji: string;
+  }
 > = {
-  palama_x:  { label: "PalamaX",  tagline: "Affordable rides", base: 12, perKm: 6,  perMin: 1.2, seats: 4, emoji: "🚗" },
-  palama_xl: { label: "PalamaXL", tagline: "Extra space",      base: 20, perKm: 9,  perMin: 1.5, seats: 6, emoji: "🚙" },
-  premium:   { label: "Premium",  tagline: "Top-rated drivers", base: 35, perKm: 14, perMin: 2.0, seats: 4, emoji: "✨" },
+  palama_x: {
+    label: "PalamaX",
+    tagline: "Affordable rides",
+    base: 12,
+    perKm: 6,
+    perMin: 1.2,
+    seats: 4,
+    emoji: "🚗",
+  },
+  palama_xl: {
+    label: "PalamaXL",
+    tagline: "Extra space",
+    base: 20,
+    perKm: 9,
+    perMin: 1.5,
+    seats: 6,
+    emoji: "🚙",
+  },
+  premium: {
+    label: "Premium",
+    tagline: "Top-rated drivers",
+    base: 35,
+    perKm: 14,
+    perMin: 2.0,
+    seats: 4,
+    emoji: "✨",
+  },
 };
 
 export function quoteFare(km: number, type: RideTypeKey) {
@@ -40,14 +72,14 @@ export function quoteFare(km: number, type: RideTypeKey) {
 
 // Pretend addresses for autocomplete.
 export const MOCK_PLACES = [
-  { label: "Pioneer Mall, Maseru",            lat: -29.3261, lng: 27.4869 },
-  { label: "Maseru Mall",                      lat: -29.3104, lng: 27.5128 },
-  { label: "Moshoeshoe I Int'l Airport",      lat: -29.4622, lng: 27.5524 },
-  { label: "Lesotho Sun Hotel",               lat: -29.3142, lng: 27.4811 },
-  { label: "Sefika Mall",                     lat: -29.3175, lng: 27.5028 },
-  { label: "National University of Lesotho",  lat: -29.4664, lng: 27.7297 },
+  { label: "Pioneer Mall, Maseru", lat: -29.3261, lng: 27.4869 },
+  { label: "Maseru Mall", lat: -29.3104, lng: 27.5128 },
+  { label: "Moshoeshoe I Int'l Airport", lat: -29.4622, lng: 27.5524 },
+  { label: "Lesotho Sun Hotel", lat: -29.3142, lng: 27.4811 },
+  { label: "Sefika Mall", lat: -29.3175, lng: 27.5028 },
+  { label: "National University of Lesotho", lat: -29.4664, lng: 27.7297 },
   { label: "Cathedral of Our Lady of Victory", lat: -29.3128, lng: 27.4858 },
-  { label: "Setsoto Stadium",                 lat: -29.3192, lng: 27.4944 },
+  { label: "Setsoto Stadium", lat: -29.3192, lng: 27.4944 },
 ];
 
 // Synthetic email/password derived from phone (mock OTP-less auth path).

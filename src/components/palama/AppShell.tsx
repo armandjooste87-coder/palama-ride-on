@@ -3,7 +3,13 @@ import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { BottomNav } from "./BottomNav";
 
-export function AppShell({ children, hideNav = false }: { children: ReactNode; hideNav?: boolean }) {
+export function AppShell({
+  children,
+  hideNav = false,
+}: {
+  children: ReactNode;
+  hideNav?: boolean;
+}) {
   const { user, loading } = useAuth();
   const nav = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });

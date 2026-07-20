@@ -1,12 +1,36 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, MapPin, Star, ShieldAlert, Home as HomeIcon, Briefcase, Clock, ChevronRight } from "lucide-react";
+import {
+  Search,
+  MapPin,
+  Star,
+  ShieldAlert,
+  Home as HomeIcon,
+  Briefcase,
+  Clock,
+  ChevronRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { GoogleMap } from "./GoogleMap";
-import { DEFAULT_LOCATION, MOCK_PLACES, RIDE_TYPES, type RideTypeKey, quoteFare, LSM, haversineKm } from "@/lib/palama";
+import {
+  DEFAULT_LOCATION,
+  MOCK_PLACES,
+  RIDE_TYPES,
+  type RideTypeKey,
+  quoteFare,
+  LSM,
+  haversineKm,
+} from "@/lib/palama";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -38,7 +62,9 @@ export function PassengerHome() {
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle()
-      .then(({ data }) => { if (data) setActiveRideId(data.id); });
+      .then(({ data }) => {
+        if (data) setActiveRideId(data.id);
+      });
   }, [user]);
 
   const filtered = useMemo(
@@ -78,13 +104,18 @@ export function PassengerHome() {
         <div>
           <h1 className="sr-only">Palama — Ride sharing in Lesotho</h1>
           <p className="text-xs text-muted-foreground">Hello,</p>
-          <h2 className="text-lg font-semibold">{profile?.full_name?.split(" ")[0] || "there"} 👋</h2>
+          <h2 className="text-lg font-semibold">
+            {profile?.full_name?.split(" ")[0] || "there"} 👋
+          </h2>
         </div>
         <Button
           variant="destructive"
           size="sm"
           className="gap-1 rounded-full"
-          onClick={() => { if (navigator.vibrate) navigator.vibrate([60, 40, 60]); setSosOpen(true); }}
+          onClick={() => {
+            if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
+            setSosOpen(true);
+          }}
         >
           <ShieldAlert className="size-4" />
           SOS
@@ -117,7 +148,9 @@ export function PassengerHome() {
             <button className="flex w-full items-center gap-3 rounded-2xl bg-surface-2 px-4 py-4 text-left">
               <Search className="size-5 text-muted-foreground" />
               <span className="text-base font-medium text-muted-foreground">Where to?</span>
-              <span className="ml-auto rounded-full bg-card px-2 py-0.5 text-xs text-muted-foreground">Now</span>
+              <span className="ml-auto rounded-full bg-card px-2 py-0.5 text-xs text-muted-foreground">
+                Now
+              </span>
             </button>
           </SheetTrigger>
           <SheetContent side="bottom" className="h-[92vh] rounded-t-3xl border-0 p-0">
@@ -138,7 +171,10 @@ export function PassengerHome() {
                     placeholder="Search destination"
                     className="border-0 bg-transparent px-0 focus-visible:ring-0"
                     value={destination?.label ?? query}
-                    onChange={(e) => { setDestination(null); setQuery(e.target.value); }}
+                    onChange={(e) => {
+                      setDestination(null);
+                      setQuery(e.target.value);
+                    }}
                   />
                 </div>
               </div>
@@ -147,7 +183,10 @@ export function PassengerHome() {
                 <ul className="mt-4 divide-y divide-border">
                   {filtered.map((p) => (
                     <li key={p.label}>
-                      <button onClick={() => setDestination(p)} className="flex w-full items-center gap-3 py-3 text-left">
+                      <button
+                        onClick={() => setDestination(p)}
+                        className="flex w-full items-center gap-3 py-3 text-left"
+                      >
                         <div className="grid size-10 place-items-center rounded-full bg-surface-2">
                           <MapPin className="size-5 text-muted-foreground" />
                         </div>
@@ -178,8 +217,16 @@ export function PassengerHome() {
                     </label>
                     {forFriend && (
                       <div className="mt-2 grid grid-cols-2 gap-2">
-                        <Input placeholder="Friend's name" value={friendName} onChange={(e) => setFriendName(e.target.value)} />
-                        <Input placeholder="Friend's phone" value={friendPhone} onChange={(e) => setFriendPhone(e.target.value)} />
+                        <Input
+                          placeholder="Friend's name"
+                          value={friendName}
+                          onChange={(e) => setFriendName(e.target.value)}
+                        />
+                        <Input
+                          placeholder="Friend's phone"
+                          value={friendPhone}
+                          onChange={(e) => setFriendPhone(e.target.value)}
+                        />
                       </div>
                     )}
                   </div>
@@ -209,7 +256,9 @@ export function PassengerHome() {
                     );
                   })}
                   <Button size="lg" className="w-full" disabled={requesting} onClick={requestRide}>
-                    {requesting ? "Requesting…" : `Request ${RIDE_TYPES[type].label} — ${LSM(quote.fare)}`}
+                    {requesting
+                      ? "Requesting…"
+                      : `Request ${RIDE_TYPES[type].label} — ${LSM(quote.fare)}`}
                   </Button>
                 </div>
               )}
@@ -218,14 +267,23 @@ export function PassengerHome() {
         </Sheet>
 
         <div className="mt-5 grid grid-cols-2 gap-3">
-          <QuickAction icon={<HomeIcon className="size-4" />} label="Home" onClick={() => toast("Set home in Profile") } />
-          <QuickAction icon={<Briefcase className="size-4" />} label="Work" onClick={() => toast("Set work in Profile")} />
+          <QuickAction
+            icon={<HomeIcon className="size-4" />}
+            label="Home"
+            onClick={() => toast("Set home in Profile")}
+          />
+          <QuickAction
+            icon={<Briefcase className="size-4" />}
+            label="Work"
+            onClick={() => toast("Set work in Profile")}
+          />
         </div>
 
         <div className="mt-6 flex items-center justify-between">
           <h2 className="text-sm font-semibold">Your trust score</h2>
           <span className="flex items-center gap-1 text-sm font-semibold">
-            <Star className="size-4 fill-primary text-primary" /> {profile?.rating?.toFixed(2) ?? "5.00"}
+            <Star className="size-4 fill-primary text-primary" />{" "}
+            {profile?.rating?.toFixed(2) ?? "5.00"}
           </span>
         </div>
         <p className="mt-1 text-xs text-muted-foreground">
@@ -249,8 +307,16 @@ export function PassengerHome() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-2">
-            <Button variant="ghost" onClick={() => setSosOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={() => { toast.success("Safety team alerted (demo)"); setSosOpen(false); }}>
+            <Button variant="ghost" onClick={() => setSosOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                toast.success("Safety team alerted (demo)");
+                setSosOpen(false);
+              }}
+            >
               Alert Safety Team
             </Button>
           </DialogFooter>
@@ -260,9 +326,20 @@ export function PassengerHome() {
   );
 }
 
-function QuickAction({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) {
+function QuickAction({
+  icon,
+  label,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+}) {
   return (
-    <button onClick={onClick} className="flex items-center gap-3 rounded-2xl bg-surface-2 px-4 py-3 text-left">
+    <button
+      onClick={onClick}
+      className="flex items-center gap-3 rounded-2xl bg-surface-2 px-4 py-3 text-left"
+    >
       <div className="grid size-9 place-items-center rounded-full bg-card text-primary">{icon}</div>
       <div>
         <p className="text-sm font-semibold">{label}</p>

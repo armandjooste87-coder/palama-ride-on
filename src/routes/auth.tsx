@@ -15,7 +15,10 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Sign in — Palama" },
-      { name: "description", content: "Sign in or create your Palama account with your phone number." },
+      {
+        name: "description",
+        content: "Sign in or create your Palama account with your phone number.",
+      },
     ],
   }),
   component: AuthPage,
@@ -45,7 +48,9 @@ function AuthPage() {
     if (mode === "signup" && fullName.trim().length < 2) return toast.error("Enter your name");
     setStep("otp");
     // Mock SMS: print code to a toast
-    toast.success("Verification code sent", { description: "For demo: any 6 digits work (e.g. 123456)" });
+    toast.success("Verification code sent", {
+      description: "For demo: any 6 digits work (e.g. 123456)",
+    });
   }
 
   async function verifyOtp() {
@@ -114,7 +119,12 @@ function AuthPage() {
               <TabsContent value="signup" className="space-y-4 pt-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Full name</Label>
-                  <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Thabo Mokoena" />
+                  <Input
+                    id="name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Thabo Mokoena"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>I'm signing up as</Label>
@@ -125,7 +135,9 @@ function AuthPage() {
                         type="button"
                         onClick={() => setRole(r)}
                         className={`rounded-xl border p-3 text-left text-sm capitalize transition ${
-                          role === r ? "border-primary bg-primary/10 text-primary" : "border-border bg-surface-2"
+                          role === r
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border bg-surface-2"
                         }`}
                       >
                         <div className="font-semibold">{r}</div>
@@ -142,9 +154,17 @@ function AuthPage() {
             <div className="mt-4 space-y-2">
               <Label htmlFor="phone">Phone number</Label>
               <div className="flex items-center gap-2">
-                <div className="rounded-md border border-input bg-surface-2 px-3 py-2 text-sm">+266</div>
-                <Input id="phone" type="tel" inputMode="tel" placeholder="5012 3456" value={phone}
-                  onChange={(e) => setPhone(e.target.value)} />
+                <div className="rounded-md border border-input bg-surface-2 px-3 py-2 text-sm">
+                  +266
+                </div>
+                <Input
+                  id="phone"
+                  type="tel"
+                  inputMode="tel"
+                  placeholder="5012 3456"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
               </div>
               <p className="text-xs text-muted-foreground">We never share your number.</p>
             </div>
@@ -169,7 +189,12 @@ function AuthPage() {
                 </InputOTPGroup>
               </InputOTP>
             </div>
-            <Button className="mt-8 w-full" size="lg" disabled={busy || otp.length !== 6} onClick={verifyOtp}>
+            <Button
+              className="mt-8 w-full"
+              size="lg"
+              disabled={busy || otp.length !== 6}
+              onClick={verifyOtp}
+            >
               {busy ? "Verifying…" : mode === "signup" ? "Create account" : "Verify & sign in"}
             </Button>
             <Button variant="ghost" className="mt-2 w-full" onClick={() => setStep("phone")}>

@@ -3,7 +3,18 @@ import { AppShell } from "@/components/palama/AppShell";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { LogOut, Star, Phone, Car, Shield, ChevronRight, Bell, ShieldCheck, Wallet, Activity } from "lucide-react";
+import {
+  LogOut,
+  Star,
+  Phone,
+  Car,
+  Shield,
+  ChevronRight,
+  Bell,
+  ShieldCheck,
+  Wallet,
+  Activity,
+} from "lucide-react";
 import { toast } from "sonner";
 import { DocumentsCard } from "@/components/palama/DocumentsCard";
 import { usePushSubscription } from "@/hooks/usePushSubscription";
@@ -12,9 +23,16 @@ export const Route = createFileRoute("/profile")({
   head: () => ({
     meta: [
       { title: "Profile — Palama" },
-      { name: "description", content: "Manage your Palama account: phone number, vehicle details, saved places, and account verification." },
+      {
+        name: "description",
+        content:
+          "Manage your Palama account: phone number, vehicle details, saved places, and account verification.",
+      },
       { property: "og:title", content: "Your profile — Palama" },
-      { property: "og:description", content: "Update your Palama account, vehicle, and saved places." },
+      {
+        property: "og:description",
+        content: "Update your Palama account, vehicle, and saved places.",
+      },
       { property: "og:url", content: "https://palama-co-ls.lovable.app/profile" },
       { name: "robots", content: "noindex" },
     ],
@@ -63,7 +81,11 @@ function ProfilePage() {
         <Card className="divide-y divide-border p-0">
           <Row icon={<Phone className="size-4" />} label="Phone" value={profile?.phone ?? "—"} />
           {role === "driver" && (
-            <Row icon={<Car className="size-4" />} label="Vehicle" value={profile?.vehicle_label ?? "Not set"} />
+            <Row
+              icon={<Car className="size-4" />}
+              label="Vehicle"
+              value={profile?.vehicle_label ?? "Not set"}
+            />
           )}
           <Row icon={<Shield className="size-4" />} label="Account" value="Verified" />
         </Card>
@@ -75,7 +97,10 @@ function ProfilePage() {
         )}
 
         <Card className="mt-4 divide-y divide-border p-0">
-          <button className="flex w-full items-center gap-3 p-4 text-left" onClick={handleEnablePush}>
+          <button
+            className="flex w-full items-center gap-3 p-4 text-left"
+            onClick={handleEnablePush}
+          >
             <Bell className="size-4 text-muted-foreground" />
             <span className="flex-1 text-sm font-medium">Enable notifications</span>
             <ChevronRight className="size-4 text-muted-foreground" />
@@ -97,7 +122,10 @@ function ProfilePage() {
               <ChevronRight className="size-4 text-muted-foreground" />
             </Link>
           )}
-          <a href="mailto:support@palama.co.ls?subject=Palama%20support" className="flex w-full items-center gap-3 p-4 text-left">
+          <a
+            href="mailto:support@palama.co.ls?subject=Palama%20support"
+            className="flex w-full items-center gap-3 p-4 text-left"
+          >
             <span className="flex-1 text-sm font-medium">Help & support</span>
             <ChevronRight className="size-4 text-muted-foreground" />
           </a>
@@ -118,7 +146,9 @@ function ProfilePage() {
 function Row({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex items-center gap-3 p-4">
-      <div className="grid size-8 place-items-center rounded-full bg-surface-2 text-muted-foreground">{icon}</div>
+      <div className="grid size-8 place-items-center rounded-full bg-surface-2 text-muted-foreground">
+        {icon}
+      </div>
       <span className="flex-1 text-sm">{label}</span>
       <span className="text-sm text-muted-foreground">{value}</span>
     </div>

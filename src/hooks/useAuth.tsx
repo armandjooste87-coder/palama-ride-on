@@ -77,9 +77,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value: AuthCtx = {
-    user, session, profile, role, isAdmin, loading,
-    refreshProfile: async () => { if (user) await loadProfile(user.id); },
-    signOut: async () => { await supabase.auth.signOut(); },
+    user,
+    session,
+    profile,
+    role,
+    isAdmin,
+    loading,
+    refreshProfile: async () => {
+      if (user) await loadProfile(user.id);
+    },
+    signOut: async () => {
+      await supabase.auth.signOut();
+    },
   };
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

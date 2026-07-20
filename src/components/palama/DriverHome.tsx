@@ -6,7 +6,15 @@ import { Star, TrendingUp, MapPin, Navigation } from "lucide-react";
 import { GoogleMap } from "./GoogleMap";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { DEFAULT_LOCATION, LSM, MOCK_PLACES, RIDE_TYPES, quoteFare, haversineKm, type RideTypeKey } from "@/lib/palama";
+import {
+  DEFAULT_LOCATION,
+  LSM,
+  MOCK_PLACES,
+  RIDE_TYPES,
+  quoteFare,
+  haversineKm,
+  type RideTypeKey,
+} from "@/lib/palama";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
 import { useDriverLocationStream } from "@/hooks/useDriverLocationStream";
@@ -29,7 +37,10 @@ export function DriverHome() {
 
   // Simulate incoming requests when online.
   useEffect(() => {
-    if (!online) { setIncoming(null); return; }
+    if (!online) {
+      setIncoming(null);
+      return;
+    }
     const id = setInterval(() => {
       if (incoming) return;
       const p = MOCK_PLACES[Math.floor(Math.random() * MOCK_PLACES.length)];
@@ -45,7 +56,10 @@ export function DriverHome() {
   // Countdown for incoming request.
   useEffect(() => {
     if (!incoming) return;
-    if (secondsLeft <= 0) { setIncoming(null); return; }
+    if (secondsLeft <= 0) {
+      setIncoming(null);
+      return;
+    }
     const id = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
     return () => clearTimeout(id);
   }, [incoming, secondsLeft]);
@@ -76,9 +90,16 @@ export function DriverHome() {
       .maybeSingle();
 
     const rideId = open?.id as string | undefined;
-    if (!rideId) { toast("No open ride requests right now"); setIncoming(null); return; }
+    if (!rideId) {
+      toast("No open ride requests right now");
+      setIncoming(null);
+      return;
+    }
     const { error: accErr } = await supabase.rpc("ride_accept", { _ride_id: rideId });
-    if (accErr) { toast.error(accErr.message); return; }
+    if (accErr) {
+      toast.error(accErr.message);
+      return;
+    }
     setIncoming(null);
     nav({ to: "/ride/$id", params: { id: rideId } });
   }
@@ -92,7 +113,9 @@ export function DriverHome() {
           <h2 className="text-lg font-semibold">{profile?.full_name?.split(" ")[0] || "Driver"}</h2>
         </div>
         <div className="flex items-center gap-2 rounded-full bg-card px-3 py-1.5">
-          <span className={`size-2 rounded-full ${online ? "bg-success animate-pulse" : "bg-muted-foreground"}`} />
+          <span
+            className={`size-2 rounded-full ${online ? "bg-success animate-pulse" : "bg-muted-foreground"}`}
+          />
           <span className="text-xs font-semibold">{online ? "ONLINE" : "OFFLINE"}</span>
           <Switch checked={online} onCheckedChange={toggleOnline} />
         </div>
@@ -104,8 +127,12 @@ export function DriverHome() {
           <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-sm">
             <Card className="mx-6 max-w-xs p-6 text-center">
               <h2 className="text-lg font-bold">You're offline</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Go online to start receiving ride requests.</p>
-              <Button className="mt-4 w-full" onClick={() => toggleOnline(true)}>Go Online</Button>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Go online to start receiving ride requests.
+              </p>
+              <Button className="mt-4 w-full" onClick={() => toggleOnline(true)}>
+                Go Online
+              </Button>
             </Card>
           </div>
         )}
@@ -115,7 +142,11 @@ export function DriverHome() {
         <div className="grid grid-cols-3 gap-3">
           <Stat icon={<TrendingUp className="size-4" />} label="Today" value={LSM(0)} />
           <Stat icon={<Navigation className="size-4" />} label="Trips" value="0" />
-          <Stat icon={<Star className="size-4 fill-primary text-primary" />} label="Rating" value={(profile?.rating ?? 5).toFixed(2)} />
+          <Stat
+            icon={<Star className="size-4 fill-primary text-primary" />}
+            label="Rating"
+            value={(profile?.rating ?? 5).toFixed(2)}
+          />
         </div>
         <div className="mt-6 rounded-2xl bg-surface-2 p-4 text-sm text-muted-foreground">
           Requests show as a card when you're online. You have 15 seconds to accept.
@@ -137,13 +168,25 @@ export function DriverHome() {
                 <span className="text-lg font-bold">{LSM(quote.fare)}</span>
               </div>
               <div className="space-y-2 text-sm">
-                <div className="flex gap-2"><MapPin className="size-4 text-foreground" /><span>{incoming.pickup.label}</span></div>
-                <div className="flex gap-2"><MapPin className="size-4 text-primary" /><span>{incoming.dropoff.label}</span></div>
+                <div className="flex gap-2">
+                  <MapPin className="size-4 text-foreground" />
+                  <span>{incoming.pickup.label}</span>
+                </div>
+                <div className="flex gap-2">
+                  <MapPin className="size-4 text-primary" />
+                  <span>{incoming.dropoff.label}</span>
+                </div>
               </div>
-              <p className="text-xs text-muted-foreground">{quote.km} km · {quote.minutes} min</p>
+              <p className="text-xs text-muted-foreground">
+                {quote.km} km · {quote.minutes} min
+              </p>
               <div className="flex gap-2">
-                <Button variant="outline" className="flex-1" onClick={() => setIncoming(null)}>Decline</Button>
-                <Button className="flex-1" onClick={acceptRide}>Accept</Button>
+                <Button variant="outline" className="flex-1" onClick={() => setIncoming(null)}>
+                  Decline
+                </Button>
+                <Button className="flex-1" onClick={acceptRide}>
+                  Accept
+                </Button>
               </div>
             </div>
           </Card>
@@ -156,7 +199,10 @@ export function DriverHome() {
 function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="rounded-2xl bg-surface-2 p-3">
-      <div className="flex items-center gap-1 text-xs text-muted-foreground">{icon}{label}</div>
+      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+        {icon}
+        {label}
+      </div>
       <p className="mt-1 text-lg font-bold">{value}</p>
     </div>
   );

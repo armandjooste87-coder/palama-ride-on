@@ -47,7 +47,8 @@ export const Route = createFileRoute("/wallet")({
 
 function WalletPage() {
   const { user, profile, refreshProfile } = useAuth();
-  const [txns, setTxns] = useState<Record<string, unknown>[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [txns, setTxns] = useState<any[]>([]);
   const [open, setOpen] = useState<null | "deposit" | "withdraw">(null);
   const [amount, setAmount] = useState("");
   const [transferOpen, setTransferOpen] = useState(false);

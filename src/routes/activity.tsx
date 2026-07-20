@@ -30,7 +30,8 @@ export const Route = createFileRoute("/activity")({
 
 function ActivityPage() {
   const { user } = useAuth();
-  const [rides, setRides] = useState<Record<string, unknown>[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [rides, setRides] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

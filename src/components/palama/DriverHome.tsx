@@ -79,6 +79,7 @@ export function DriverHome() {
 
   async function acceptRide() {
     if (!incoming || !user || !quote) return;
+    // Try to pick up a real open request first.
     const { data: open } = await supabase
       .from("rides")
       .select("id")
@@ -89,18 +90,36 @@ export function DriverHome() {
       .limit(1)
       .maybeSingle();
 
-    const rideId = open?.id as string | undefined;
-    if (!rideId) {
-      toast("No open ride requests right now");
+    if (open?.id) {
+      const { error: accErr } = await supabase.rpc("ride_accept", { _ride_id: open.id });
+      if (accErr) {
+        toast.error(accErr.message);
+        return;
+      }
       setIncoming(null);
+      nav({ to: "/ride/$id", params: { id: open.id } });
       return;
     }
-    const { error: accErr } = await supabase.rpc("ride_accept", { _ride_id: rideId });
-    if (accErr) {
-      toast.error(accErr.message);
+
+    // Fall back to a demo accept using the simulated incoming request.
+    const { data: demo, error: demoErr } = await supabase.rpc("demo_driver_accept", {
+      _pickup_address: incoming.pickup.label,
+      _pickup_lat: incoming.pickup.lat,
+      _pickup_lng: incoming.pickup.lng,
+      _dropoff_address: incoming.dropoff.label,
+      _dropoff_lat: incoming.dropoff.lat,
+      _dropoff_lng: incoming.dropoff.lng,
+      _ride_type: incoming.type,
+      _fare: quote.fare,
+      _distance_km: quote.km,
+      _duration_min: quote.minutes,
+    } as never);
+    if (demoErr || !demo) {
+      toast.error(demoErr?.message ?? "Could not accept ride");
       return;
     }
     setIncoming(null);
+    const rideId = (demo as { id: string }).id;
     nav({ to: "/ride/$id", params: { id: rideId } });
   }
 

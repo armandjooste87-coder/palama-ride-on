@@ -478,6 +478,79 @@ export type Database = {
       }
       bootstrap_admin: { Args: never; Returns: undefined }
       complete_ride_payment: { Args: { _ride_id: string }; Returns: undefined }
+      demo_driver_accept: {
+        Args: {
+          _distance_km: number
+          _dropoff_address: string
+          _dropoff_lat: number
+          _dropoff_lng: number
+          _duration_min: number
+          _fare: number
+          _pickup_address: string
+          _pickup_lat: number
+          _pickup_lng: number
+          _ride_type: string
+        }
+        Returns: {
+          created_at: string
+          distance_km: number
+          driver_id: string | null
+          dropoff_address: string
+          dropoff_lat: number
+          dropoff_lng: number
+          duration_min: number
+          fare_lsm: number
+          id: string
+          is_for_friend: boolean
+          passenger_id: string
+          payment_method: Database["public"]["Enums"]["ride_payment_method"]
+          pickup_address: string
+          pickup_lat: number
+          pickup_lng: number
+          ride_type: Database["public"]["Enums"]["ride_type"]
+          rider_name: string | null
+          rider_phone: string | null
+          status: Database["public"]["Enums"]["ride_status"]
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "rides"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      demo_self_drive: {
+        Args: { _ride_id: string }
+        Returns: {
+          created_at: string
+          distance_km: number
+          driver_id: string | null
+          dropoff_address: string
+          dropoff_lat: number
+          dropoff_lng: number
+          duration_min: number
+          fare_lsm: number
+          id: string
+          is_for_friend: boolean
+          passenger_id: string
+          payment_method: Database["public"]["Enums"]["ride_payment_method"]
+          pickup_address: string
+          pickup_lat: number
+          pickup_lng: number
+          ride_type: Database["public"]["Enums"]["ride_type"]
+          rider_name: string | null
+          rider_phone: string | null
+          status: Database["public"]["Enums"]["ride_status"]
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "rides"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       driver_doc_upsert: {
         Args: { _doc_type: string; _storage_path: string }
         Returns: {

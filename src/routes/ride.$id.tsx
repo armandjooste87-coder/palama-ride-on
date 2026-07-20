@@ -108,10 +108,12 @@ function RidePage() {
     if (!n) return;
     const delay = ride.status === "in_progress" ? 6000 : 4000;
     const t = setTimeout(async () => {
-      // Simulated driver-side progression for demo. In production the driver app
-      // would call ride_advance directly. Here the passenger view advances on its
-      // own only when the driver_id matches (self-fulfilled demo ride); otherwise
-      // it just waits for the real driver.
+      // Demo flow: if no real driver has picked up the request, self-assign the
+      // passenger as their own demo driver so the trip can progress to completion.
+      if (ride.status === "requested" && !ride.driver_id) {
+        await supabase.rpc("demo_self_drive", { _ride_id: ride.id });
+        return;
+      }
       if (ride.driver_id === user?.id) {
         await supabase.rpc("ride_advance", { _ride_id: ride.id, _to: n });
       }

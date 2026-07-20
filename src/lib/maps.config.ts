@@ -1,8 +1,8 @@
 // Public Google Maps + VAPID configuration. Values are non-secret.
-export const GOOGLE_MAPS_BROWSER_KEY =
-  import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
-export const GOOGLE_MAPS_TRACKING_ID =
-  import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined;
+export const GOOGLE_MAPS_BROWSER_KEY = import.meta.env
+  .VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
+export const GOOGLE_MAPS_TRACKING_ID = import.meta.env
+  .VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined;
 
 // VAPID public key — safe to ship to the browser (private key stays on the server).
 export const VAPID_PUBLIC_KEY =

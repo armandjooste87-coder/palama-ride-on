@@ -11,9 +11,16 @@ export const Route = createFileRoute("/activity")({
   head: () => ({
     meta: [
       { title: "Activity — Palama" },
-      { name: "description", content: "Review your recent Palama trips, fares paid, and driver earnings — all in one place." },
+      {
+        name: "description",
+        content:
+          "Review your recent Palama trips, fares paid, and driver earnings — all in one place.",
+      },
       { property: "og:title", content: "Your trips — Palama" },
-      { property: "og:description", content: "See every Palama ride you've taken or driven, with status and fare details." },
+      {
+        property: "og:description",
+        content: "See every Palama ride you've taken or driven, with status and fare details.",
+      },
       { property: "og:url", content: "https://palama-co-ls.lovable.app/activity" },
     ],
     links: [{ rel: "canonical", href: "https://palama-co-ls.lovable.app/activity" }],
@@ -33,7 +40,10 @@ function ActivityPage() {
       .select("*")
       .or(`passenger_id.eq.${user.id},driver_id.eq.${user.id}`)
       .order("created_at", { ascending: false })
-      .then(({ data }) => { setRides(data ?? []); setLoading(false); });
+      .then(({ data }) => {
+        setRides(data ?? []);
+        setLoading(false);
+      });
   }, [user]);
 
   return (
@@ -63,7 +73,8 @@ function ActivityPage() {
                 <div className="flex-1 overflow-hidden">
                   <p className="truncate text-sm font-semibold">{r.dropoff_address}</p>
                   <p className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })} · {r.status.replace("_", " ")}
+                    {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })} ·{" "}
+                    {r.status.replace("_", " ")}
                   </p>
                 </div>
                 <p className="text-sm font-bold">{LSM(Number(r.fare_lsm))}</p>

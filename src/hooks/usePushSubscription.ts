@@ -17,7 +17,11 @@ export function usePushSubscription(userId: string | undefined) {
   // Returns a function the UI can call (e.g. on a "Enable notifications" tap)
   return async function enablePush() {
     if (!userId) return { ok: false, reason: "no_user" as const };
-    if (typeof window === "undefined" || !("serviceWorker" in navigator) || !("PushManager" in window)) {
+    if (
+      typeof window === "undefined" ||
+      !("serviceWorker" in navigator) ||
+      !("PushManager" in window)
+    ) {
       return { ok: false, reason: "unsupported" as const };
     }
     const perm = await Notification.requestPermission();
@@ -35,13 +39,16 @@ export function usePushSubscription(userId: string | undefined) {
     if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) {
       return { ok: false, reason: "invalid_sub" as const };
     }
-    const { error } = await supabase.from("push_subscriptions").upsert({
-      user_id: userId,
-      endpoint: json.endpoint,
-      p256dh: json.keys.p256dh,
-      auth: json.keys.auth,
-      user_agent: navigator.userAgent,
-    }, { onConflict: "endpoint" });
+    const { error } = await supabase.from("push_subscriptions").upsert(
+      {
+        user_id: userId,
+        endpoint: json.endpoint,
+        p256dh: json.keys.p256dh,
+        auth: json.keys.auth,
+        user_agent: navigator.userAgent,
+      },
+      { onConflict: "endpoint" },
+    );
     if (error) return { ok: false, reason: "db_error" as const, error };
     return { ok: true as const };
   };

@@ -20,7 +20,11 @@ export function useDriverLocationStream(driverId: string | undefined, enabled: b
       if (now - lastPushRef.current < 4000) return; // throttle
       lastPushRef.current = now;
       await supabase.from("driver_locations").upsert({
-        driver_id: driverId!, lat, lng, heading, updated_at: new Date().toISOString(),
+        driver_id: driverId!,
+        lat,
+        lng,
+        heading,
+        updated_at: new Date().toISOString(),
       });
     }
 

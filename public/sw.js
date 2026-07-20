@@ -8,7 +8,11 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("push", (event) => {
   let data = {};
-  try { data = event.data ? event.data.json() : {}; } catch (e) { data = { body: event.data && event.data.text() }; }
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (e) {
+    data = { body: event.data && event.data.text() };
+  }
   const title = data.title || "Palama";
   const options = {
     body: data.body || "",
@@ -29,6 +33,6 @@ self.addEventListener("notificationclick", (event) => {
         if ("focus" in c) return c.navigate(url).then(() => c.focus());
       }
       if (self.clients.openWindow) return self.clients.openWindow(url);
-    })
+    }),
   );
 });

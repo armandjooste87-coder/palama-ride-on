@@ -40,21 +40,31 @@ export function DocumentsCard() {
     setDocs((data ?? []) as DocRow[]);
   }
 
-  useEffect(() => { void refresh(); /* eslint-disable-next-line */ }, [user?.id]);
+  useEffect(() => {
+    void refresh(); /* eslint-disable-next-line */
+  }, [user?.id]);
 
   async function handleFile(doc_type: string, file: File) {
     if (!user) return;
-    if (file.size > MAX_BYTES) { toast.error("File too large (max 10 MB)"); return; }
-    if (!/^image\/|application\/pdf/.test(file.type)) { toast.error("Only images or PDF allowed"); return; }
+    if (file.size > MAX_BYTES) {
+      toast.error("File too large (max 10 MB)");
+      return;
+    }
+    if (!/^image\/|application\/pdf/.test(file.type)) {
+      toast.error("Only images or PDF allowed");
+      return;
+    }
     setUploading(doc_type);
     try {
       const ext = (file.name.split(".").pop() || "bin").toLowerCase().slice(0, 5);
       const path = `${user.id}/${doc_type}-${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("driver-docs")
+      const { error: upErr } = await supabase.storage
+        .from("driver-docs")
         .upload(path, file, { upsert: true, contentType: file.type });
       if (upErr) throw upErr;
       const { error: rpcErr } = await supabase.rpc("driver_doc_upsert", {
-        _doc_type: doc_type, _storage_path: path,
+        _doc_type: doc_type,
+        _storage_path: path,
       });
       if (rpcErr) throw rpcErr;
       toast.success("Submitted for review");
@@ -83,12 +93,20 @@ export function DocumentsCard() {
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium">{t.label}</p>
                 <div className="mt-0.5 flex items-center gap-2">
-                  {d ? <StatusBadge status={d.status} /> : <Badge variant="outline">Not uploaded</Badge>}
-                  {d?.admin_note && <span className="truncate text-xs text-muted-foreground">{d.admin_note}</span>}
+                  {d ? (
+                    <StatusBadge status={d.status} />
+                  ) : (
+                    <Badge variant="outline">Not uploaded</Badge>
+                  )}
+                  {d?.admin_note && (
+                    <span className="truncate text-xs text-muted-foreground">{d.admin_note}</span>
+                  )}
                 </div>
               </div>
               <input
-                ref={(el) => { fileRefs.current[t.key] = el; }}
+                ref={(el) => {
+                  fileRefs.current[t.key] = el;
+                }}
                 type="file"
                 className="hidden"
                 accept="image/*,application/pdf"
@@ -116,7 +134,19 @@ export function DocumentsCard() {
 }
 
 function StatusBadge({ status }: { status: DocRow["status"] }) {
-  if (status === "approved") return <Badge className="bg-success text-success-foreground"><Check className="mr-1 size-3" />Approved</Badge>;
-  if (status === "rejected") return <Badge variant="destructive"><X className="mr-1 size-3" />Rejected</Badge>;
+  if (status === "approved")
+    return (
+      <Badge className="bg-success text-success-foreground">
+        <Check className="mr-1 size-3" />
+        Approved
+      </Badge>
+    );
+  if (status === "rejected")
+    return (
+      <Badge variant="destructive">
+        <X className="mr-1 size-3" />
+        Rejected
+      </Badge>
+    );
   return <Badge variant="secondary">Pending review</Badge>;
 }

@@ -78,20 +78,37 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" },
+      {
+        name: "viewport",
+        content: "width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1",
+      },
       { title: "Palama — Rides" },
       { name: "description", content: "Palama: book rides in seconds. Safe, fast, mobile-first." },
       { name: "author", content: "Palama" },
       { name: "theme-color", content: "#16213a" },
       { property: "og:title", content: "Palama — Rides" },
-      { property: "og:description", content: "Palama: book rides in seconds. Safe, fast, mobile-first." },
+      {
+        property: "og:description",
+        content: "Palama: book rides in seconds. Safe, fast, mobile-first.",
+      },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Palama" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "Palama — Rides" },
-      { name: "twitter:description", content: "Palama: book rides in seconds. Safe, fast, mobile-first." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/7734d553-5b63-409a-bdd6-8f84e519b358" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/7734d553-5b63-409a-bdd6-8f84e519b358" },
+      {
+        name: "twitter:description",
+        content: "Palama: book rides in seconds. Safe, fast, mobile-first.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/7734d553-5b63-409a-bdd6-8f84e519b358",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/7734d553-5b63-409a-bdd6-8f84e519b358",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

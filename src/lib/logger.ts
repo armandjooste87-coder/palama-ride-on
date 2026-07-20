@@ -19,9 +19,17 @@ export function log(level: LogLevel, event: string, meta?: Record<string, unknow
 
   if (level === "warn" || level === "error") {
     // Fire-and-forget: never let logging break user flow.
-    supabase.rpc("log_event", {
-      _level: level, _event: event, _route: route ?? null, _meta: (meta ?? null) as never,
-    } as never).then(() => {}, () => {});
+    supabase
+      .rpc("log_event", {
+        _level: level,
+        _event: event,
+        _route: route ?? null,
+        _meta: (meta ?? null) as never,
+      } as never)
+      .then(
+        () => {},
+        () => {},
+      );
     if (level === "error") {
       reportLovableError(new Error(event), { source: "palama_logger", ...(meta ?? {}) });
     }
@@ -30,7 +38,7 @@ export function log(level: LogLevel, event: string, meta?: Record<string, unknow
 
 export const logger = {
   debug: (event: string, meta?: Record<string, unknown>) => log("debug", event, meta),
-  info:  (event: string, meta?: Record<string, unknown>) => log("info",  event, meta),
-  warn:  (event: string, meta?: Record<string, unknown>) => log("warn",  event, meta),
+  info: (event: string, meta?: Record<string, unknown>) => log("info", event, meta),
+  warn: (event: string, meta?: Record<string, unknown>) => log("warn", event, meta),
   error: (event: string, meta?: Record<string, unknown>) => log("error", event, meta),
 };

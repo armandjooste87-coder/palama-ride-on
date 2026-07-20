@@ -51,24 +51,31 @@ export function GoogleMap({
 
   // Init
   useEffect(() => {
-    if (!GOOGLE_MAPS_BROWSER_KEY) { setFailed(true); return; }
-    let cancelled = false;
-    loadGoogleMaps().then((maps) => {
-      if (cancelled || !ref.current) return;
-      mapRef.current = new maps.Map(ref.current, {
-        center,
-        zoom: 14,
-        disableDefaultUI: true,
-        zoomControl: true,
-        gestureHandling: "greedy",
-        clickableIcons: false,
-        styles: DARK_STYLE,
-      });
-    }).catch((err) => {
-      console.warn("[Palama] Google Maps failed to load, falling back to mock map", err);
+    if (!GOOGLE_MAPS_BROWSER_KEY) {
       setFailed(true);
-    });
-    return () => { cancelled = true; };
+      return;
+    }
+    let cancelled = false;
+    loadGoogleMaps()
+      .then((maps) => {
+        if (cancelled || !ref.current) return;
+        mapRef.current = new maps.Map(ref.current, {
+          center,
+          zoom: 14,
+          disableDefaultUI: true,
+          zoomControl: true,
+          gestureHandling: "greedy",
+          clickableIcons: false,
+          styles: DARK_STYLE,
+        });
+      })
+      .catch((err) => {
+        console.warn("[Palama] Google Maps failed to load, falling back to mock map", err);
+        setFailed(true);
+      });
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -86,30 +93,49 @@ export function GoogleMap({
     if (pickup) {
       if (!pickupMarkerRef.current) {
         pickupMarkerRef.current = new g.maps.Marker({
-          map, position: pickup, icon: pinIcon(g, "#FFFFFF"), title: "Pickup",
+          map,
+          position: pickup,
+          icon: pinIcon(g, "#FFFFFF"),
+          title: "Pickup",
         });
       } else pickupMarkerRef.current.setPosition(pickup);
-    } else { pickupMarkerRef.current?.setMap(null); pickupMarkerRef.current = null; }
+    } else {
+      pickupMarkerRef.current?.setMap(null);
+      pickupMarkerRef.current = null;
+    }
 
     if (dropoff) {
       if (!dropoffMarkerRef.current) {
         dropoffMarkerRef.current = new g.maps.Marker({
-          map, position: dropoff, icon: pinIcon(g, "#D9F26B"), title: "Dropoff",
+          map,
+          position: dropoff,
+          icon: pinIcon(g, "#D9F26B"),
+          title: "Dropoff",
         });
       } else dropoffMarkerRef.current.setPosition(dropoff);
-    } else { dropoffMarkerRef.current?.setMap(null); dropoffMarkerRef.current = null; }
+    } else {
+      dropoffMarkerRef.current?.setMap(null);
+      dropoffMarkerRef.current = null;
+    }
 
     if (pickup && dropoff) {
       if (!routeLineRef.current) {
         routeLineRef.current = new g.maps.Polyline({
-          map, path: [pickup, dropoff], strokeColor: "#D9F26B",
-          strokeOpacity: 0.95, strokeWeight: 4,
+          map,
+          path: [pickup, dropoff],
+          strokeColor: "#D9F26B",
+          strokeOpacity: 0.95,
+          strokeWeight: 4,
         });
       } else routeLineRef.current.setPath([pickup, dropoff]);
       const b = new g.maps.LatLngBounds();
-      b.extend(pickup); b.extend(dropoff);
+      b.extend(pickup);
+      b.extend(dropoff);
       map.fitBounds(b, 80);
-    } else { routeLineRef.current?.setMap(null); routeLineRef.current = null; }
+    } else {
+      routeLineRef.current?.setMap(null);
+      routeLineRef.current = null;
+    }
   }, [pickup?.lat, pickup?.lng, dropoff?.lat, dropoff?.lng]);
 
   // Driver marker (live).
@@ -120,10 +146,16 @@ export function GoogleMap({
     if (driver) {
       if (!driverMarkerRef.current) {
         driverMarkerRef.current = new g.maps.Marker({
-          map, position: driver, icon: carIcon(g), title: "Driver",
+          map,
+          position: driver,
+          icon: carIcon(g),
+          title: "Driver",
         });
       } else driverMarkerRef.current.setPosition(driver);
-    } else { driverMarkerRef.current?.setMap(null); driverMarkerRef.current = null; }
+    } else {
+      driverMarkerRef.current?.setMap(null);
+      driverMarkerRef.current = null;
+    }
   }, [driver?.lat, driver?.lng]);
 
   // Animated route progress marker.
@@ -139,15 +171,23 @@ export function GoogleMap({
     const lng = pickup.lng + (dropoff.lng - pickup.lng) * routeProgress;
     if (!progressMarkerRef.current) {
       progressMarkerRef.current = new g.maps.Marker({
-        map, position: { lat, lng }, icon: carIcon(g),
+        map,
+        position: { lat, lng },
+        icon: carIcon(g),
       });
     } else progressMarkerRef.current.setPosition({ lat, lng });
   }, [routeProgress, pickup?.lat, pickup?.lng, dropoff?.lat, dropoff?.lng]);
 
   if (failed) {
     return (
-      <MockMap center={center} pickup={pickup} dropoff={dropoff} driver={driver}
-        showNearbyDrivers={showNearbyDrivers} routeProgress={routeProgress} />
+      <MockMap
+        center={center}
+        pickup={pickup}
+        dropoff={dropoff}
+        driver={driver}
+        showNearbyDrivers={showNearbyDrivers}
+        routeProgress={routeProgress}
+      />
     );
   }
 

@@ -22,9 +22,17 @@ export function ReceiptSlip({ receipt, onClose }: { receipt: Receipt; onClose?: 
   async function share() {
     const text = `Palama slip · ${receipt.title}\nRef: ${receipt.reference}\nAmount: ${LSM(receipt.amount)}\n${ts}`;
     if (navigator.share) {
-      try { await navigator.share({ title: "Palama slip", text }); } catch { /* user cancelled */ }
+      try {
+        await navigator.share({ title: "Palama slip", text });
+      } catch {
+        /* user cancelled */
+      }
     } else {
-      try { await navigator.clipboard.writeText(text); } catch { /* noop */ }
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        /* noop */
+      }
     }
   }
   return (
@@ -57,7 +65,9 @@ export function ReceiptSlip({ receipt, onClose }: { receipt: Receipt; onClose?: 
         </dl>
       )}
       <div className="mt-4 border-t border-dashed border-border pt-3 text-xs text-muted-foreground">
-        <p>Ref: <span className="font-mono">{receipt.reference}</span></p>
+        <p>
+          Ref: <span className="font-mono">{receipt.reference}</span>
+        </p>
         <p className="mt-0.5">{ts}</p>
         {receipt.note && <p className="mt-2">{receipt.note}</p>}
       </div>
@@ -69,7 +79,9 @@ export function ReceiptSlip({ receipt, onClose }: { receipt: Receipt; onClose?: 
           <Printer className="mr-1 size-4" /> Print
         </Button>
         {onClose && (
-          <Button size="sm" className="flex-1" onClick={onClose}>Done</Button>
+          <Button size="sm" className="flex-1" onClick={onClose}>
+            Done
+          </Button>
         )}
       </div>
     </Card>

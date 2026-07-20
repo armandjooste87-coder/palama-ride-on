@@ -60,14 +60,28 @@ export function MockMap({
         <rect width="100%" height="100%" fill="url(#grid)" />
         <rect width="100%" height="100%" fill="url(#grid-lg)" />
         {/* fake roads */}
-        <path d="M -20 60% Q 50% 40%, 120% 70%" stroke="oklch(1 0 0 / 0.15)" strokeWidth="14" fill="none" />
-        <path d="M 40% -20 Q 55% 50%, 30% 120%" stroke="oklch(1 0 0 / 0.12)" strokeWidth="10" fill="none" />
+        <path
+          d="M -20 60% Q 50% 40%, 120% 70%"
+          stroke="oklch(1 0 0 / 0.15)"
+          strokeWidth="14"
+          fill="none"
+        />
+        <path
+          d="M 40% -20 Q 55% 50%, 30% 120%"
+          stroke="oklch(1 0 0 / 0.12)"
+          strokeWidth="10"
+          fill="none"
+        />
         <path d="M -20 30% L 120% 35%" stroke="oklch(1 0 0 / 0.08)" strokeWidth="6" fill="none" />
       </svg>
 
       {/* route line */}
       {pickup && dropoff && (
-        <svg className="absolute inset-0 h-full w-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+        <svg
+          className="absolute inset-0 h-full w-full"
+          preserveAspectRatio="none"
+          viewBox="0 0 100 100"
+        >
           <line
             x1={project(pickup).x}
             y1={project(pickup).y}
@@ -88,7 +102,11 @@ export function MockMap({
           <div
             key={d.id}
             className="absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-1000 ease-linear"
-            style={{ left: `${p.x}%`, top: `${p.y}%`, transform: `translate(-50%,-50%) rotate(${d.heading}deg)` }}
+            style={{
+              left: `${p.x}%`,
+              top: `${p.y}%`,
+              transform: `translate(-50%,-50%) rotate(${d.heading}deg)`,
+            }}
           >
             <div className="rounded-full bg-foreground/90 p-1.5 shadow-lg">
               <Navigation2 className="size-3 text-background" />
@@ -143,10 +161,23 @@ export function MockMap({
   );
 }
 
-function Pin({ pos, color, label }: { pos: { x: number; y: number }; color: string; label: string }) {
+function Pin({
+  pos,
+  color,
+  label,
+}: {
+  pos: { x: number; y: number };
+  color: string;
+  label: string;
+}) {
   return (
-    <div className="absolute -translate-x-1/2 -translate-y-full" style={{ left: `${pos.x}%`, top: `${pos.y}%` }}>
-      <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-background shadow-lg ${color}`}>
+    <div
+      className="absolute -translate-x-1/2 -translate-y-full"
+      style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+    >
+      <div
+        className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-background shadow-lg ${color}`}
+      >
         {label}
       </div>
       <div className={`mx-auto h-2 w-2 -translate-y-1 rotate-45 ${color}`} />

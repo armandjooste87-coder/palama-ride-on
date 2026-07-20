@@ -6,7 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,7 +24,10 @@ export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
       { title: "Admin — Palama" },
-      { name: "description", content: "Palama admin: review driver documents, set commission, manage verification." },
+      {
+        name: "description",
+        content: "Palama admin: review driver documents, set commission, manage verification.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -59,7 +66,9 @@ function AdminPage() {
   useEffect(() => {
     void (async () => {
       const { count } = await supabase
-        .from("user_roles").select("*", { count: "exact", head: true }).eq("role", "admin");
+        .from("user_roles")
+        .select("*", { count: "exact", head: true })
+        .eq("role", "admin");
       setAdminExists((count ?? 0) > 0);
     })();
   }, []);
@@ -67,7 +76,10 @@ function AdminPage() {
   async function refresh() {
     const [{ data: ds }, { data: docs }, { data: ledger }] = await Promise.all([
       supabase.rpc("admin_list_drivers"),
-      supabase.from("driver_documents").select("id,driver_id,doc_type,storage_path,status,admin_note").eq("status", "pending"),
+      supabase
+        .from("driver_documents")
+        .select("id,driver_id,doc_type,storage_path,status,admin_note")
+        .eq("status", "pending"),
       supabase.from("platform_ledger").select("amount_lsm"),
     ]);
     setDrivers((ds ?? []) as DriverRow[]);
@@ -77,21 +89,29 @@ function AdminPage() {
 
   useEffect(() => {
     if (loading) return;
-    if (!user) { nav({ to: "/auth", replace: true }); return; }
+    if (!user) {
+      nav({ to: "/auth", replace: true });
+      return;
+    }
     if (isAdmin) void refresh();
   }, [user, isAdmin, loading, nav]);
 
   async function bootstrap() {
     const { error } = await supabase.rpc("bootstrap_admin");
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("You're now an admin. Reloading…");
     window.location.reload();
   }
 
   if (loading) {
-    return <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-    </div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
   }
 
   if (!isAdmin) {
@@ -101,15 +121,15 @@ function AdminPage() {
           <Card className="p-6 text-center">
             <ShieldCheck className="mx-auto size-10 text-primary" />
             <h1 className="mt-3 text-lg font-bold">Admin only</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              You don't have admin access.
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground">You don't have admin access.</p>
             {adminExists === false && (
               <>
                 <p className="mt-4 text-xs text-muted-foreground">
                   No admin exists yet. You can claim the first admin seat.
                 </p>
-                <Button className="mt-3" onClick={bootstrap}>Make me the first admin</Button>
+                <Button className="mt-3" onClick={bootstrap}>
+                  Make me the first admin
+                </Button>
               </>
             )}
           </Card>
@@ -127,8 +147,16 @@ function AdminPage() {
 
       <div className="px-5 pt-4 pb-24">
         <div className="grid grid-cols-3 gap-3">
-          <Stat icon={<Users className="size-4" />} label="Drivers" value={String(drivers.length)} />
-          <Stat icon={<FileSearch className="size-4" />} label="Pending docs" value={String(pending.length)} />
+          <Stat
+            icon={<Users className="size-4" />}
+            label="Drivers"
+            value={String(drivers.length)}
+          />
+          <Stat
+            icon={<FileSearch className="size-4" />}
+            label="Pending docs"
+            value={String(pending.length)}
+          />
           <Stat icon={<Coins className="size-4" />} label="Commission" value={LSM(ledgerTotal)} />
         </div>
 
@@ -149,7 +177,9 @@ function AdminPage() {
 
           <TabsContent value="docs" className="space-y-3 pt-4">
             {pending.length === 0 && (
-              <p className="text-center text-sm text-muted-foreground py-8">No pending documents.</p>
+              <p className="text-center text-sm text-muted-foreground py-8">
+                No pending documents.
+              </p>
             )}
             {pending.map((doc) => (
               <DocReviewCard key={doc.id} doc={doc} onChanged={refresh} />
@@ -164,7 +194,10 @@ function AdminPage() {
 function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="rounded-2xl bg-surface-2 p-3">
-      <div className="flex items-center gap-1 text-xs text-muted-foreground">{icon}{label}</div>
+      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+        {icon}
+        {label}
+      </div>
       <p className="mt-1 text-lg font-bold">{value}</p>
     </div>
   );
@@ -178,9 +211,15 @@ function DriverEditor({ driver, onChanged }: { driver: DriverRow; onChanged: () 
   async function save() {
     setSaving(true);
     const a = await supabase.rpc("admin_set_commission", { _driver_id: driver.id, _pct: pct });
-    const b = await supabase.rpc("admin_set_verification", { _driver_id: driver.id, _level: level });
+    const b = await supabase.rpc("admin_set_verification", {
+      _driver_id: driver.id,
+      _level: level,
+    });
     setSaving(false);
-    if (a.error || b.error) { toast.error(a.error?.message || b.error?.message || "Failed"); return; }
+    if (a.error || b.error) {
+      toast.error(a.error?.message || b.error?.message || "Failed");
+      return;
+    }
     toast.success("Driver updated");
     onChanged();
   }
@@ -205,7 +244,10 @@ function DriverEditor({ driver, onChanged }: { driver: DriverRow; onChanged: () 
           <span className="font-mono font-bold">{pct.toFixed(2)}%</span>
         </div>
         <Slider
-          value={[pct]} min={2} max={35} step={0.5}
+          value={[pct]}
+          min={2}
+          max={35}
+          step={0.5}
           onValueChange={(v) => setPct(v[0])}
           className="mt-2"
         />
@@ -217,7 +259,9 @@ function DriverEditor({ driver, onChanged }: { driver: DriverRow; onChanged: () 
       <div className="mt-4">
         <p className="mb-1 text-sm text-muted-foreground">Verification level</p>
         <Select value={level} onValueChange={setLevel}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="unverified">Unverified</SelectItem>
             <SelectItem value="basic">Basic</SelectItem>
@@ -241,7 +285,9 @@ function DocReviewCard({ doc, onChanged }: { doc: DocReview; onChanged: () => vo
 
   useEffect(() => {
     void (async () => {
-      const { data } = await supabase.storage.from("driver-docs").createSignedUrl(doc.storage_path, 300);
+      const { data } = await supabase.storage
+        .from("driver-docs")
+        .createSignedUrl(doc.storage_path, 300);
       setPreviewUrl(data?.signedUrl ?? null);
     })();
   }, [doc.storage_path]);
@@ -249,10 +295,15 @@ function DocReviewCard({ doc, onChanged }: { doc: DocReview; onChanged: () => vo
   async function decide(status: "approved" | "rejected") {
     setBusy(true);
     const { error } = await supabase.rpc("admin_review_document", {
-      _doc_id: doc.id, _status: status, _note: note || "",
+      _doc_id: doc.id,
+      _status: status,
+      _note: note || "",
     });
     setBusy(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success(status === "approved" ? "Approved" : "Rejected");
     onChanged();
   }
@@ -262,19 +313,40 @@ function DocReviewCard({ doc, onChanged }: { doc: DocReview; onChanged: () => vo
       <p className="text-sm font-semibold">{doc.doc_type.replace(/_/g, " ")}</p>
       <p className="mt-0.5 text-xs text-muted-foreground">Driver: {doc.driver_id.slice(0, 8)}…</p>
       {previewUrl ? (
-      <a href={previewUrl ?? "#"} target="_blank" rel="noreferrer" className="mt-3 block overflow-hidden rounded-lg bg-surface-2">
-          {/\.(png|jpe?g|webp|gif)$/i.test(doc.storage_path)
-            ? <img src={previewUrl} alt="" className="h-40 w-full object-cover" />
-            : <div className="p-6 text-center text-sm">Open file ↗</div>}
+        <a
+          href={previewUrl ?? "#"}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-3 block overflow-hidden rounded-lg bg-surface-2"
+        >
+          {/\.(png|jpe?g|webp|gif)$/i.test(doc.storage_path) ? (
+            <img src={previewUrl} alt="" className="h-40 w-full object-cover" />
+          ) : (
+            <div className="p-6 text-center text-sm">Open file ↗</div>
+          )}
         </a>
-      ) : <p className="mt-3 text-xs text-muted-foreground">Loading preview…</p>}
+      ) : (
+        <p className="mt-3 text-xs text-muted-foreground">Loading preview…</p>
+      )}
       <Textarea
-        className="mt-3" placeholder="Optional note for driver"
-        value={note} onChange={(e) => setNote(e.target.value)} maxLength={500}
+        className="mt-3"
+        placeholder="Optional note for driver"
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        maxLength={500}
       />
       <div className="mt-3 flex gap-2">
-        <Button variant="outline" className="flex-1" onClick={() => decide("rejected")} disabled={busy}>Reject</Button>
-        <Button className="flex-1" onClick={() => decide("approved")} disabled={busy}>Approve</Button>
+        <Button
+          variant="outline"
+          className="flex-1"
+          onClick={() => decide("rejected")}
+          disabled={busy}
+        >
+          Reject
+        </Button>
+        <Button className="flex-1" onClick={() => decide("approved")} disabled={busy}>
+          Approve
+        </Button>
       </div>
     </Card>
   );

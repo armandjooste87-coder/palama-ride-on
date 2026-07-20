@@ -3,7 +3,13 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { DialogDescription } from "@/components/ui/dialog";
 import { Star, Phone, ShieldAlert, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,26 +29,40 @@ export const Route = createFileRoute("/ride/$id")({
   head: () => ({
     meta: [
       { title: "Trip — Palama" },
-      { name: "description", content: "Track your live Palama trip: driver location, route progress, fare, and safety tools — all on one screen." },
+      {
+        name: "description",
+        content:
+          "Track your live Palama trip: driver location, route progress, fare, and safety tools — all on one screen.",
+      },
       { property: "og:title", content: "Live trip — Palama" },
-      { property: "og:description", content: "Follow your driver in real time and manage your Palama trip." },
+      {
+        property: "og:description",
+        content: "Follow your driver in real time and manage your Palama trip.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
   component: RidePage,
 });
 
-const STATUS_FLOW = ["requested","matched","arriving","arrived","in_progress","completed"] as const;
-type Status = typeof STATUS_FLOW[number] | "cancelled";
+const STATUS_FLOW = [
+  "requested",
+  "matched",
+  "arriving",
+  "arrived",
+  "in_progress",
+  "completed",
+] as const;
+type Status = (typeof STATUS_FLOW)[number] | "cancelled";
 
 const STATUS_COPY: Record<Status, { title: string; sub: string }> = {
-  requested:   { title: "Finding your driver…", sub: "Matching you with a nearby driver" },
-  matched:     { title: "Driver assigned",       sub: "Your driver is on the way" },
-  arriving:    { title: "Driver is arriving",    sub: "Look out for them at pickup" },
-  arrived:     { title: "Driver has arrived",    sub: "Hop in when you're ready" },
-  in_progress: { title: "On the way",            sub: "Enjoy the ride" },
-  completed:   { title: "Trip complete",         sub: "Thanks for riding with Palama" },
-  cancelled:   { title: "Trip cancelled",        sub: "This trip was cancelled" },
+  requested: { title: "Finding your driver…", sub: "Matching you with a nearby driver" },
+  matched: { title: "Driver assigned", sub: "Your driver is on the way" },
+  arriving: { title: "Driver is arriving", sub: "Look out for them at pickup" },
+  arrived: { title: "Driver has arrived", sub: "Hop in when you're ready" },
+  in_progress: { title: "On the way", sub: "Enjoy the ride" },
+  completed: { title: "Trip complete", sub: "Thanks for riding with Palama" },
+  cancelled: { title: "Trip cancelled", sub: "This trip was cancelled" },
 };
 
 function RidePage() {
@@ -63,7 +83,10 @@ function RidePage() {
     }
     load();
     const t = setInterval(load, 4000);
-    return () => { cancelled = true; clearInterval(t); };
+    return () => {
+      cancelled = true;
+      clearInterval(t);
+    };
   }, [id]);
 
   const isPassenger = ride && user && ride.passenger_id === user.id;
@@ -103,13 +126,22 @@ function RidePage() {
     return () => clearInterval(t);
   }, [ride?.status]);
 
-  const pickup = useMemo(() => ride && { lat: Number(ride.pickup_lat), lng: Number(ride.pickup_lng) }, [ride]);
-  const dropoff = useMemo(() => ride && { lat: Number(ride.dropoff_lat), lng: Number(ride.dropoff_lng) }, [ride]);
+  const pickup = useMemo(
+    () => ride && { lat: Number(ride.pickup_lat), lng: Number(ride.pickup_lng) },
+    [ride],
+  );
+  const dropoff = useMemo(
+    () => ride && { lat: Number(ride.dropoff_lat), lng: Number(ride.dropoff_lng) },
+    [ride],
+  );
   const driverPos = useMemo(() => {
     if (!ride || !pickup || !dropoff) return null;
     if (ride.status === "matched" || ride.status === "arriving") {
       // driver "approaching" pickup from south-east
-      return { lat: pickup.lat - 0.006 * (ride.status === "matched" ? 1.2 : 0.5), lng: pickup.lng + 0.006 };
+      return {
+        lat: pickup.lat - 0.006 * (ride.status === "matched" ? 1.2 : 0.5),
+        lng: pickup.lng + 0.006,
+      };
     }
     return null;
   }, [ride, pickup, dropoff]);
@@ -131,14 +163,21 @@ function RidePage() {
 
   async function driverAdvance(to: Status) {
     const { error } = await supabase.rpc("ride_advance", { _ride_id: ride.id, _to: to });
-    if (error) { logger.warn("ride_advance_failed", { to, err: error.message }); toast.error(error.message); return; }
+    if (error) {
+      logger.warn("ride_advance_failed", { to, err: error.message });
+      toast.error(error.message);
+      return;
+    }
     logger.info("ride_advanced", { rideId: ride.id, to });
     if (to === "completed") refreshProfile();
   }
 
   async function cancelRide() {
     const { error } = await supabase.rpc("ride_cancel", { _ride_id: ride.id });
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast("Ride cancelled");
     nav({ to: "/", replace: true });
   }
@@ -148,7 +187,10 @@ function RidePage() {
     const rateeId = isPassenger ? ride.driver_id : ride.passenger_id;
     if (!rateeId) return;
     await supabase.from("ratings").insert({
-      ride_id: ride.id, rater_id: user.id, ratee_id: rateeId, stars,
+      ride_id: ride.id,
+      rater_id: user.id,
+      ratee_id: rateeId,
+      stars,
     });
     setRated(true);
     toast.success("Thanks for your rating!");
@@ -158,10 +200,19 @@ function RidePage() {
     <div className="mx-auto flex min-h-screen max-w-md flex-col bg-background">
       <h1 className="sr-only">Palama trip — {copy.title}</h1>
       <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-between px-4 pt-4 safe-top">
-        <button aria-label="Close trip and go home" onClick={() => nav({ to: "/" })} className="grid size-10 place-items-center rounded-full bg-card">
+        <button
+          aria-label="Close trip and go home"
+          onClick={() => nav({ to: "/" })}
+          className="grid size-10 place-items-center rounded-full bg-card"
+        >
           <X className="size-5" />
         </button>
-        <Button variant="destructive" size="sm" className="gap-1 rounded-full" onClick={() => toast("Safety alerted (demo)")}>
+        <Button
+          variant="destructive"
+          size="sm"
+          className="gap-1 rounded-full"
+          onClick={() => toast("Safety alerted (demo)")}
+        >
           <ShieldAlert className="size-4" /> SOS
         </Button>
       </div>
@@ -180,7 +231,9 @@ function RidePage() {
       <div className="-mt-6 flex-1 rounded-t-3xl bg-card px-5 pt-5 pb-8">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-primary">{RIDE_TYPES[ride.ride_type as RideTypeKey].label}</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-primary">
+              {RIDE_TYPES[ride.ride_type as RideTypeKey].label}
+            </p>
             <h2 className="mt-1 text-xl font-bold">{copy.title}</h2>
             <p className="text-sm text-muted-foreground">{copy.sub}</p>
           </div>
@@ -190,29 +243,52 @@ function RidePage() {
           </div>
         </div>
 
-        {(status === "matched" || status === "arriving" || status === "arrived" || status === "in_progress") && (
+        {(status === "matched" ||
+          status === "arriving" ||
+          status === "arrived" ||
+          status === "in_progress") && (
           <Card className="mt-5 flex items-center gap-3 p-4">
-            <div className="grid size-12 place-items-center rounded-full bg-primary text-2xl">🧑‍✈️</div>
+            <div className="grid size-12 place-items-center rounded-full bg-primary text-2xl">
+              🧑‍✈️
+            </div>
             <div className="flex-1">
-              <p className="font-bold">{ride.is_for_friend ? `${ride.rider_name ?? "Friend"} (rider)` : "Lerato M."}</p>
+              <p className="font-bold">
+                {ride.is_for_friend ? `${ride.rider_name ?? "Friend"} (rider)` : "Lerato M."}
+              </p>
               <p className="text-xs text-muted-foreground">Toyota Corolla · A123-AB</p>
               <p className="mt-0.5 flex items-center gap-1 text-xs">
                 <Star className="size-3 fill-primary text-primary" /> 4.93
               </p>
             </div>
             <div className="flex gap-2">
-              <Button aria-label="Call driver" size="icon" variant="outline" onClick={() => toast("Calling driver…")}><Phone className="size-4" /></Button>
+              <Button
+                aria-label="Call driver"
+                size="icon"
+                variant="outline"
+                onClick={() => toast("Calling driver…")}
+              >
+                <Phone className="size-4" />
+              </Button>
               <ChatSheet rideId={ride.id} />
             </div>
           </Card>
         )}
 
         <div className="mt-5 space-y-3 rounded-2xl bg-surface-2 p-4 text-sm">
-          <div className="flex gap-3"><span className="mt-1 size-2 rounded-full bg-foreground" /><span>{ride.pickup_address}</span></div>
+          <div className="flex gap-3">
+            <span className="mt-1 size-2 rounded-full bg-foreground" />
+            <span>{ride.pickup_address}</span>
+          </div>
           <div className="ml-1 h-3 w-px bg-border" />
-          <div className="flex gap-3"><span className="mt-1 size-2 rounded-sm bg-primary" /><span>{ride.dropoff_address}</span></div>
+          <div className="flex gap-3">
+            <span className="mt-1 size-2 rounded-sm bg-primary" />
+            <span>{ride.dropoff_address}</span>
+          </div>
           {ride.is_for_friend && ride.rider_name && (
-            <p className="pt-2 text-xs text-muted-foreground">Trip for a friend · {ride.rider_name}{ride.rider_phone ? ` · ${ride.rider_phone}` : ""}</p>
+            <p className="pt-2 text-xs text-muted-foreground">
+              Trip for a friend · {ride.rider_name}
+              {ride.rider_phone ? ` · ${ride.rider_phone}` : ""}
+            </p>
           )}
         </div>
 
@@ -239,9 +315,14 @@ function RidePage() {
                   { label: "To", value: ride.dropoff_address },
                   { label: "Distance", value: `${Number(ride.distance_km).toFixed(2)} km` },
                   { label: "Duration", value: `${ride.duration_min} min` },
-                  ...(ride.is_for_friend ? [{ label: "Rider", value: ride.rider_name ?? "Friend" }] : []),
+                  ...(ride.is_for_friend
+                    ? [{ label: "Rider", value: ride.rider_name ?? "Friend" }]
+                    : []),
                 ],
-                note: ride.payment_method === "cash" ? "Cash collected by driver. Platform fee debited from driver's wallet." : undefined,
+                note:
+                  ride.payment_method === "cash"
+                    ? "Cash collected by driver. Platform fee debited from driver's wallet."
+                    : undefined,
               }}
             />
           </div>
@@ -250,10 +331,26 @@ function RidePage() {
         {/* Driver-only actions */}
         {isDriver && status !== "completed" && status !== "cancelled" && (
           <div className="mt-5 grid gap-2">
-            {status === "matched" && <Button size="lg" onClick={() => driverAdvance("arriving")}>I'm on the way</Button>}
-            {status === "arriving" && <Button size="lg" onClick={() => driverAdvance("arrived")}>I've arrived</Button>}
-            {status === "arrived" && <Button size="lg" onClick={() => driverAdvance("in_progress")}>Start trip</Button>}
-            {status === "in_progress" && <Button size="lg" onClick={() => driverAdvance("completed")}>Complete trip</Button>}
+            {status === "matched" && (
+              <Button size="lg" onClick={() => driverAdvance("arriving")}>
+                I'm on the way
+              </Button>
+            )}
+            {status === "arriving" && (
+              <Button size="lg" onClick={() => driverAdvance("arrived")}>
+                I've arrived
+              </Button>
+            )}
+            {status === "arrived" && (
+              <Button size="lg" onClick={() => driverAdvance("in_progress")}>
+                Start trip
+              </Button>
+            )}
+            {status === "in_progress" && (
+              <Button size="lg" onClick={() => driverAdvance("completed")}>
+                Complete trip
+              </Button>
+            )}
           </div>
         )}
 
@@ -270,18 +367,41 @@ function RidePage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Rate your {isPassenger ? "driver" : "passenger"}</DialogTitle>
-            <DialogDescription>Your rating helps other Palama users decide who to ride with.</DialogDescription>
+            <DialogDescription>
+              Your rating helps other Palama users decide who to ride with.
+            </DialogDescription>
           </DialogHeader>
           <div className="flex justify-center gap-1 py-2">
             {[1, 2, 3, 4, 5].map((n) => (
-              <button key={n} aria-label={`Rate ${n} ${n === 1 ? "star" : "stars"}`} onClick={() => setStars(n)}>
-                <Star className={`size-9 transition ${n <= stars ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+              <button
+                key={n}
+                aria-label={`Rate ${n} ${n === 1 ? "star" : "stars"}`}
+                onClick={() => setStars(n)}
+              >
+                <Star
+                  className={`size-9 transition ${n <= stars ? "fill-primary text-primary" : "text-muted-foreground"}`}
+                />
               </button>
             ))}
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => { setRated(true); nav({ to: "/" }); }}>Skip</Button>
-            <Button onClick={async () => { await submitRating(); nav({ to: "/" }); }}>Submit</Button>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setRated(true);
+                nav({ to: "/" });
+              }}
+            >
+              Skip
+            </Button>
+            <Button
+              onClick={async () => {
+                await submitRating();
+                nav({ to: "/" });
+              }}
+            >
+              Submit
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -30,7 +30,7 @@ export const Route = createFileRoute("/activity")({
 
 function ActivityPage() {
   const { user } = useAuth();
-  const [rides, setRides] = useState<any[]>([]);
+  const [rides, setRides] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

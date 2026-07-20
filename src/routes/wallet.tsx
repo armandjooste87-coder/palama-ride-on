@@ -47,7 +47,7 @@ export const Route = createFileRoute("/wallet")({
 
 function WalletPage() {
   const { user, profile, refreshProfile } = useAuth();
-  const [txns, setTxns] = useState<any[]>([]);
+  const [txns, setTxns] = useState<Record<string, unknown>[]>([]);
   const [open, setOpen] = useState<null | "deposit" | "withdraw">(null);
   const [amount, setAmount] = useState("");
   const [transferOpen, setTransferOpen] = useState(false);

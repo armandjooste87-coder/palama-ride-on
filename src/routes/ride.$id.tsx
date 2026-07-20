@@ -23,7 +23,9 @@ import { useRideDriverLocation } from "@/hooks/useRideDriverLocation";
 import { LSM, RIDE_TYPES, type RideTypeKey } from "@/lib/palama";
 import type { Database } from "@/integrations/supabase/types";
 
-type RideRow = Database["public"]["Tables"] extends Record<string, unknown> ? any : any;
+type RideRow = Record<string, unknown> & { id: string };
+// Placeholder to keep Database import referenced for future schema alignment.
+export type _Database = Database;
 
 export const Route = createFileRoute("/ride/$id")({
   head: () => ({
